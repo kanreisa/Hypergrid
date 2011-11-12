@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/0.9 for Prototype.js
+ * Hypergrid/1.0 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -13,33 +13,35 @@ var Hypergrid = Class.create({
 	 * Constructor
 	**/
 	initialize: function(pParam){
-		this.onRendered    = pParam.onRendered    || null;
-		this.colModel      = pParam.colModel      || [];
-		this.rows          = pParam.rows          || [];
-		this.tableID       = pParam.tableID       || null;
-		this.tableClass    = pParam.tableClass    || 'hypergrid';
-		this.tableWidth    = pParam.tableWidth    || 'auto';
-		this.tableHeight   = pParam.tableHeight   || 'auto';
-		this.colMinWidth   = pParam.colMinWidth   || 20;
-		this.multiSelect   = pParam.multiSelect   || false;
-		this.useCheckbox   = pParam.useCheckbox   || true;
-		this.disableSelect = pParam.disableSelect || false;
-		this.disableSort   = pParam.disableSort   || false;
-		this.strSortAsc    = pParam.strSortAsc    || '&#x25B2;';//BLACK UP-POINTING TRIANGLE
-		this.strSortDesc   = pParam.strSortDesc   || '&#x25BC;';//BLACK DOWN-POINTING TRIANGLE
-		//this.striped       = pParam.striped       || true;
-		//this.minHeight     = pParam.minHeight     || 80;
-		//this.resizable     = pParam.resizable     || false;
-		//showToggleBtn: true, //show or hide column toggle popup
+		this.colModel       = pParam.colModel       || [];
+		this.rows           = pParam.rows           || [];
+		this.tableID        = pParam.tableID        || null;
+		this.tableClass     = pParam.tableClass     || 'hypergrid';
+		this.tableWidth     = pParam.tableWidth     || 'auto';
+		this.tableHeight    = pParam.tableHeight    || 'auto';
+		this.tableStyle     = pParam.tableStyle     || {};
+		this.colMinWidth    = pParam.colMinWidth    || 20;
+		this.multiSelect    = pParam.multiSelect    || false;
+		this.disableCheckbox= pParam.disableCheckbox|| false;
+		this.disableSelect  = pParam.disableSelect  || false;
+		this.disableSort    = pParam.disableSort    || false;
+		this.disableResize  = pParam.disableResize  || false;
+		this.strSortAsc     = pParam.strSortAsc     || '&#x25B2;';//BLACK UP-POINTING TRIANGLE
+		this.strSortDesc    = pParam.strSortDesc    || '&#x25BC;';//BLACK DOWN-POINTING TRIANGLE
+		this.onRendered     = pParam.onRendered     || null;
+		this.onBeforeSort   = pParam.onBeforeSort   || null;
+		this.onSort         = pParam.onSort         || null;
 		
 		//init checkbox
-		if(this.useCheckbox && this.multiSelect){
+		if((this.disableCheckbox === false) && this.multiSelect){
 			//create master checkbox
 			this._checkbox = {
-				master: new Element('input', {
-					type : 'checkbox'
-				})
+				master: document.createElement('input')
 			};
+			this._checkbox.master.setAttribute('type', 'checkbox');
+			this._checkbox.master.style.cursor = 'pointer';
+			this._checkbox.master.style.padding
+			this._checkbox.master.checked = false;
 			
 			//insert checkbox to colModel
 			this.colModel = [
@@ -95,40 +97,60 @@ var Hypergrid = Class.create({
 				};
 			}.bind(this));
 		}
-	}
+	}//<--initialize()
 	,
 	/**
 	 * Render
 	**/
 	render: function(pElement){
-		var target = $(pElement);//target element
+		//create container
+		var target = document.createElement('div');
+		target.setAttribute('class', 'hypergrid-container');
+		
+		//insert container to render element
+		if($(pElement).innerHTML.empty() === false){
+			try{
+				$(pElement).innerHTML = '';
+			}catch(e){
+				$(pElement).update();
+			}
+		}
+		$(pElement).appendChild(target);
 		
 		//create table element
-		var table = this._table = new Element('table', {
-			id       : this.tableID,//set id
-			width    : this.tableWidth,//set width
-			height   : this.tableHeight,//set height
-			className: this.tableClass//set className
-		});
+		var table = this._table = document.createElement('table');
+		table.setAttribute('id', this.tableID);
+		table.setAttribute('class', this.tableClass);
+		
+		var styles = this.tableStyle || {};
+		styles.width  = Object.isNumber(this.tableWidth) ? this.tableWidth + 'px' : this.tableWidth;
+		styles.height = Object.isNumber(this.tableHeight) ? this.tableHeight + 'px' : this.tableHeight;
+		table.setStyle(styles);
 		
 		//insert table to target
-		target.update(table);
+		target.appendChild(table);
+		
+		//create thead element
+		var thead = document.createElement('thead');
+		
+		//insert thead to table
+		table.appendChild(thead);
+		
+		//create tbody element
+		var tbody = document.createElement('tbody');
+		
+		//insert tbody to table
+		table.appendChild(tbody);
 		
 		//column model
 		if(typeof this.colModel[0].key != 'undefined'){
-			var r = $(table.insertRow(-1));//insert row
+			var r = document.createElement('tr');//insert row
+			thead.appendChild(r);
+			
 			//
 			//render column header
 			//
 			this.colModel.each(function(col, i){
-				//adjust size by browser
-				if(Prototype.Browser.WebKit === false){
-					if(col.width && (!col._fixedWidth)){
-						col.width       = col.width - 10;
-						col._fixedWidth = true;
-					}
-				}
-				
 				//fix innerHTML
 				var innerHTML = col.innerHTML || '';
 				if(col._statusSort && ((typeof col.width == 'undefined') || (col.width > 20))){
@@ -141,12 +163,15 @@ var Hypergrid = Class.create({
 					if(col._statusSort.isActive){
 						triangle.addClassName('hypergrid-active');
 					}
+					
 					//add event listener
-					triangle.observe('click', function(){
+					triangle.observe('click', function(e){
 						//unselect all
 						this.selector('unselectAll');
+						
 						//proc sort
 						this.sorter(col.key, (col._statusSort.isOrderAsc) ? 'desc' : 'asc');
+						
 						//update status
 						col._statusSort.isOrderAsc = (col._statusSort.isOrderAsc) ? false : true;
 						this.colModel.each(function(col, i){
@@ -155,83 +180,167 @@ var Hypergrid = Class.create({
 							}
 						});
 						col._statusSort.isActive = true;
+						
 						//redraw
 						this.render(pElement);
 					}.bind(this));
+					
 					//insert triangle
 					innerHTML = new Element('div').insert(
-						col.innerHTML || ''
-					).insert(
+						new Element('span').insert(
+							col.innerHTML || ''
+						).setStyle({
+							marginRight : '10px'
+						})
+					).setStyle({
+						paddingRight : '1px'
+					}).insert(
 						triangle
 					);
-				}
+				}//<--if
 				
 				//create th element
-				r.insert(
-					new Element('th', {
-						width : col.width || 'auto',
-						align : col.align || 'left',
-						valign: col.valign|| 'middle',
-						title : col.title || ''
-					}).setStyle(
-						col.style || {}
-					).setStyle({
-						minWidth: this.colMinWidth + 'px'
-					}).update(
-						innerHTML
-					).observe('click', function(e){
-						//onClick Event
-						if(col.onClick) col.onClick(e);
-					})
-				);
-			}.bind(this));
-		}
+				var th = col._th = document.createElement('th');
+				
+				//set title attr
+				if(col.title) th.setAttribute('title', col.title);
+				
+				//set styles
+				var styles = col.style || {};
+				if(col.onClick) styles.cursor = 'pointer';
+				styles.textAlign     = col.align  || 'left';
+				styles.verticalAlign = col.valign || 'middle';
+				styles.width         = (col.width + 'px') || 'auto';
+				styles.minWidth      = this.colMinWidth + 'px';
+				th.setStyle(styles);
+				
+				//onClick event
+				if(col.onClick){
+					th.observe('click', function(e){
+						col.onClick(e);
+					});
+				}
+				
+				//innerHTML
+				if(Object.isElement(innerHTML) === true){
+					if(innerHTML.type == 'checkbox'){
+						var contentContainer = document.createElement('div');
+						contentContainer.appendChild(innerHTML);
+						th.appendChild(contentContainer);
+					}else{
+						th.appendChild(innerHTML);
+					}
+				}else{
+					var contentContainer = document.createElement('div');
+					contentContainer.innerHTML = innerHTML;
+					th.appendChild(contentContainer);
+				}
+				
+				//insert th to tr
+				r.appendChild(th);
+				
+				//adjust size by browser
+				if(Prototype.Browser.WebKit === true){
+					if(col.width && (!col._fixedWidth) && (this.tableWidth != 'auto') && (table.getStyle('table-layout') == 'fixed')){
+						//set style to th
+						th.style.width = (
+							col.width + 1 +
+							parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
+							parseInt(th.getStyle('padding-right').replace('px', ''), 10)
+						) + 'px';
+							
+						col._fixedWidth = true;
+					}
+				}
+			}.bind(this));//<--#each
+		}//<--if
 		
 		//rows
 		this.rows.each(function(row, i){
-			var r = row._tr = $(table.insertRow(-1));//insert row
-			r.id    = row.id    || null;//set id
-			r.title = row.title || '';//set title
+			//create tr element
+			var r = row._tr = document.createElement('tr');
+			if(row.id)    r.setAttribute('id', row.id);
+			if(row.title) r.setAttribute('title', row.title);
+			
+			//set styles
+			var styles = row.style || {};
+			if((row.onClick) || (row.onDblClick) || (row.onSelect)) styles.cursor = 'pointer';
+			r.setStyle(styles);
+			
+			//insert row to tbody
+			tbody.appendChild(r);
+			
 			//
 			//render cells
 			//
 			this.colModel.each(function(col, j){
 				//if undefined
 				if(typeof row.cell[col.key] == 'undefined') row.cell[col.key] = {};
-				//adjust size by browser
-				if(Prototype.Browser.WebKit === false){
-					if(row.cell[col.key].width && (!row.cell[col.key]._fixedWidth)){
-						row.cell[col.key].width       = row.cell[col.key].width - 10;
-						row.cell[col.key]._fixedWidth = true;
-					}
-					if(col.width && (!col._fixedWidth)){
-						col.width       = col.width - 10;
-						col._fixedWidth = true;
+				
+				//create td element
+				var td = document.createElement('td');
+				
+				//set title attr
+				if(row.cell[col.key].title) td.setAttribute('title', row.cell[col.key].title);
+				
+				//set styles
+				var styles = row.cell[col.key].style || {};
+				if(row.cell[col.key].onClick) styles.cursor = 'pointer';
+				styles.textAlign     = row.cell[col.key].align || col.align || 'left';
+				styles.verticalAlign = row.cell[col.key].valign|| col.valign|| 'middle';
+				styles.width         = (row.cell[col.key].width + 'px') || 'auto';
+				td.setStyle(styles);
+				
+				//onClick event
+				if(row.cell[col.key].onClick){
+					td.observe('click', function(e){
+						row.cell[col.key].onClick(this, e);
+					});
+				}
+				
+				//innerHTML
+				if(row.cell[col.key].innerHTML){
+					//create container
+					var contentContainer = document.createElement('div');
+					td.appendChild(contentContainer);
+					
+					//insertion
+					if(Object.isElement(row.cell[col.key].innerHTML) === true){
+						contentContainer.appendChild(row.cell[col.key].innerHTML);
+					}else{
+						contentContainer.innerHTML = row.cell[col.key].innerHTML;
 					}
 				}
-				//create td element
-				r.insert(
-					new Element('td', {
-						width : row.cell[col.key].width || col.width || 'auto',
-						align : row.cell[col.key].align || col.align || 'left',
-						valign: row.cell[col.key].valign|| col.valign|| 'middle',
-						title : row.cell[col.key].title || ''
-					}).setStyle(
-						row.cell[col.key].style || {}
-					).update(
-						row.cell[col.key].innerHTML || ''
-					).observe('click', function(pEvent){
-						//call user function
-						if(row.cell[col.key].onClick) row.cell[col.key].onClick(this, pEvent);
-					})
-				);
-			});
+				
+				//adjust size by browser
+				if(Prototype.Browser.WebKit === true){
+					if(
+						row.cell[col.key].width && (!row.cell[col.key]._fixedWidth) &&
+						(this.tableWidth != 'auto') && (table.getStyle('table-layout') == 'fixed')
+					){
+						td.setStyle({
+							width: (
+								row.cell[col.key].width +
+								parseInt(td.getStyle('padding-left').replace('px', ''), 10) +
+								parseInt(td.getStyle('padding-right').replace('px', ''), 10) +
+								parseInt(td.getStyle('border-left-width').replace('px', ''), 10)
+							) + 'px'
+						});
+						row.cell[col.key]._fixedWidth = true;
+					}//<--if
+				}
+				
+				//insert td to tr
+				r.appendChild(td);
+			}.bind(this));//<--#each
+			
 			//
 			//click Event
 			//
 			r.observe('click', function(pEvent){
 				//call user function
 				if(row.onClick) row.onClick(r, pEvent);
+				
 				//selection
 				if(this.disableSelect === false){
 					if(this.multiSelect === true){
@@ -248,6 +357,7 @@ var Hypergrid = Class.create({
 						//if selected this row, just unselect only.
 						var clear = false;
 						if(r.hasClassName('selected')) clear = true;
+						
 						//unselect all rows
 						this.selector('unselectAll');
 						
@@ -256,23 +366,119 @@ var Hypergrid = Class.create({
 								if(row.onSelect) row.onSelect(r, pEvent);//call user function
 							});
 						}
-					}
-				}
-			}.bind(this));
+					}//<--if
+				}//<--if
+			}.bind(this));//<--#observe
+			
 			//
 			//dblClick Event
 			//
-			r.observe('dblclick', function(pEvent){
-				//call user function
-				if(row.onDblClick) row.onDblClick(r, pEvent);
-			}.bind(this));
-		}.bind(this));
+			if(row.onDblClick){
+				r.observe('dblclick', function(e){
+					row.onDblClick(r, e);
+				});
+			}
+		}.bind(this));//<--#each
+		
+		//resizing
+		if(this.disableResize === false){
+			//reposition
+			var repositionResizeBars = function(){
+				this.colModel.each(function(col, i){
+					//break on last column
+					if((i + 1) === this.colModel.length){
+						throw $break;
+					}
+					
+					//set style
+					col._rbar.style.left = (col._th.positionedOffset().left + col._th.getWidth()) + 'px';
+				}.bind(this));//<--#each
+			}.bind(this);
+			
+			//init
+			this.colModel.each(function(col, i){
+				//break on last column
+				if((i + 1) === this.colModel.length){
+					throw $break;
+				}
+				
+				//resize bar
+				var rbar = col._rbar = document.createElement('div');
+				rbar.setAttribute('class', 'hypergrid-resize-bar');
+				rbar.style.left = (col._th.positionedOffset().left + col._th.getWidth()) + 'px';
+				
+				//insert bar to table
+				table.appendChild(rbar);
+				
+				//observe mousedown event
+				rbar.observe('mousedown', function(e){
+					var positionedX = e.clientX;//save cursor position
+					var beforePos   = parseInt(rbar.getStyle('left').replace('px', ''), 10); 
+					
+					rbar.addClassName('hypergrid-resize-bar-visible');
+					
+					//mousemove event
+					var onMove = function(e){
+						var transfers = e.clientX - positionedX;//calc
+						rbar.style.left = (transfers + parseInt(rbar.getStyle('left').replace('px', ''), 10)) + 'px';
+						
+						positionedX = e.clientX;//save cursor position
+						
+						//stop default event
+						e.stop();
+						return false;
+					};//<--onMove()
+					
+					//mouseup event
+					var onUp = function(e){
+						rbar.removeClassName('hypergrid-resize-bar-visible');
+						
+						var resize = parseInt(rbar.getStyle('left').replace('px', ''), 10) - beforePos;
+						
+						col.width = (
+							resize + col._th.getWidth() -
+							parseInt(col._th.getStyle('padding-left').replace('px', ''), 10) -
+							parseInt(col._th.getStyle('padding-right').replace('px', ''), 10) -
+							((i === 0) ? 0 : 1)
+						);
+						
+						col._th.style.width = col.width + 'px';
+						
+						//remove width style of right column
+						this.colModel[i + 1]._th.style.width = 'auto';
+						delete this.colModel[i + 1].width;
+						
+						repositionResizeBars();
+						
+						//stop observing events
+						$(document.body).stopObserving('mousemove', onMove);
+						$(document.body).stopObserving('mouseup', onUp);
+						
+						//stop default event
+						e.stop();
+						return false;
+					}.bind(this);//<--onUp()
+					
+					//observe events
+					$(document.body).observe('mousemove', onMove);
+					$(document.body).observe('mouseup', onUp);
+					
+					//stop default event
+					e.stop();
+					return false;
+				}.bind(this));//<--#observe
+			}.bind(this));//<--#each
+			
+			Event.observe(window, 'resize', function(){
+				setTimeout(repositionResizeBars, 500);
+			});
+		}//<--if
 		
 		//onRendered Event
-		if(this.onRendered){
+		if(this.onRendered !== null){
 			this.onRendered();
 		}
-	}
+	}//<--render()
 	,
 	/**
 	 * selector
@@ -282,9 +488,11 @@ var Hypergrid = Class.create({
 		if(pAct == 'select'){
 			//add 'selected' className
 			pElement.addClassName('selected');
+			
 			//checkbox
 			if(this._checkbox){
-				pElement.childElements()[0].childElements()[0].checked = true;
+				//check
+				pElement.childElements()[0].childElements()[0].childElements()[0].checked = true;
 				this._checkbox.master.checked = true;
 			}
 		}
@@ -293,9 +501,12 @@ var Hypergrid = Class.create({
 		if(pAct == 'unselect'){
 			//remove 'selected' className
 			pElement.removeClassName('selected');
+			
 			//checkbox
 			if(this._checkbox){
-				pElement.childElements()[0].childElements()[0].checked = false;
+				//uncheck
+				pElement.childElements()[0].childElements()[0].childElements()[0].checked = false;
+				
 				//master checkbox
 				var c = true;
 				Object.keys(this._checkbox).without('master').each(function(key){
@@ -313,14 +524,19 @@ var Hypergrid = Class.create({
 		//select all rows
 		if(pAct == 'selectAll'){
 			this.rows.each(function(row){
-				if(row._tr.hasClassName('selected')) return;
+				//continue if already selected
+				if(row._tr.hasClassName('selected') === true) return;
+				
 				//add 'selected' className
 				row._tr.addClassName('selected');
+				
 				//checkbox
 				if(this._checkbox){
-					row._tr.childElements()[0].childElements()[0].checked = true;
+					row._tr.childElements()[0].childElements()[0].childElements()[0].checked = true;
 					this._checkbox.master.checked = true;
 				}
+				
+				//onSelect event
 				if(row.onSelect) row.onSelect();
 			}.bind(this));
 		}
@@ -328,26 +544,35 @@ var Hypergrid = Class.create({
 		//unselect all rows
 		if(pAct == 'unselectAll'){
 			this.rows.each(function(row){
+				//continue if already unselected
 				if(!row._tr.hasClassName('selected')) return;
+				
 				//remove 'selected' className
 				row._tr.removeClassName('selected');
+				
 				//checkbox
 				if(this._checkbox){
-					row._tr.childElements()[0].childElements()[0].checked = false;
+					row._tr.childElements()[0].childElements()[0].childElements()[0].checked = false;
 					this._checkbox.master.checked = false;
 				}
+				
+				//onUnselect event
 				if(row.onUnSelect) row.onUnSelect();
 			}.bind(this));
 		}
 		
 		//call function when finished
 		if(pFunc) pFunc();
-	}
+	}//<--selector()
 	,
 	/**
 	 * sorter
 	**/
 	sorter: function(pKey, pOrder){
+		//onBeforeSort event
+		if(this.onBeforeSort !== null) this.onBeforeSort(pKey, pOrder);
+		
+		//run sorter
 		this.rows = this.rows.sort(function(a, b){
 			var result = false;
 			if(a.cell[pKey].innerHTML > b.cell[pKey].innerHTML){
@@ -361,5 +586,8 @@ var Hypergrid = Class.create({
 				return result ? -1 : 1;
 			}
 		});
-	}
+		
+		//onSort event
+		if(this.onSort !== null) this.onSort(pKey, pOrder);
+	}//<--sorter()
 });

@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/0.9 for Prototype.js
+ * Hypergrid/1.0 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -8,110 +8,159 @@
  *
  * http://akkar.in/projects/hypergrid/
 **/
+div.hypergrid-container, table.hypergrid {
+	background : #ffffff;
+	color      : #2b2b2b;
+	position   : relative;
+	margin     : 0;
+	padding    : 0;
+	border     : 0;
+	font-weight: normal;
+	font-style : normal;
+	font-size  : 100%;
+	font-family: inherit; }
+
+div.hypergrid-container {
+	overflow: auto; }
+
+table.hypergrid div {
+	padding: 0;
+	margin : 0; }
+
 table.hypergrid {
-	background      : #fff;
-	border          : 1px solid #ccc;
+	position        : relative;
+	background      : #ffffff;
+	border          : none;
 	border-collapse : collapse;
 	table-layout    : fixed; }
 	
-	table.hypergrid > tbody > tr {
-		background-color: #f5f5f5; }
+	table.hypergrid > thead > tr {
+		border-bottom: 1px solid #cccccc; }
 	
-	table.hypergrid > tbody > tr:nth-child(even) {
+	table.hypergrid > tbody > tr {
 		background-color: #fefefe; }
+	
+	table.hypergrid > tbody > tr:nth-child(odd) {
+		background-color: #f5f5f5; }
 	
 	table.hypergrid > tbody > tr:hover {
 		background-color: #e5e5e5; }
 	
 	table.hypergrid > tbody > tr.selected {
-		background-color: #cce1ff; }
-	
-	table.hypergrid > tbody > tr.selected:nth-child(even) {
 		background-color: #d6e7ff; }
+	
+	table.hypergrid > tbody > tr.selected:nth-child(odd) {
+		background-color: #cce1ff; }
 	
 	table.hypergrid > tbody > tr.selected:hover {
 		background-color: #b7d5ff; }
 	
-		table.hypergrid > tbody > tr > th, table.hypergrid > tbody > tr > td {
-			white-space     : nowrap;
+		table.hypergrid > thead > tr > th,
+		table.hypergrid > tbody > tr > td {
 			font-size       : 11px;
-			font-weight     : normal;
-			overflow        : hidden; }
+			font-weight     : normal; }
 			
-			table.hypergrid > tbody > tr > th > *, table.hypergrid > tbody > tr > td > * {
+			table.hypergrid > thead > tr > th > *,
+			table.hypergrid > tbody > tr > td > div {
+				white-space   : nowrap;
+				vertical-align: bottom;
+				overflow      : hidden;
+				width         : 100%; }
+			
+			table.hypergrid > thead > tr > th > div > input,
+			table.hypergrid > tbody > tr > td > div > input {
 				vertical-align: middle; }
-		
-		table.hypergrid > tbody > tr > th {
-			background-color: #fafafa;
+			
+		table.hypergrid > thead > tr > th {
+			background-color: #fefefe;
 			background-image: -webkit-gradient(
 				linear,
 				left bottom,
 				left top,
-				color-stop(0,    #eeeeee),
-				color-stop(0.55, #f5f5f5),
-				color-stop(0.55, #fdfdfd),
-				color-stop(1,    #fafafa)
+				color-stop(0,   #e8e8e8),
+				color-stop(0.25,#fafafa),
+				color-stop(1,   #ffffff)
 			);
 			background-image: -moz-linear-gradient(
 				center bottom,
-				#eeeeee 0%,
-				#f5f5f5 55%,
-				#fdfdfd 55%,
-				#fafafa 100%
+				#e8e8e8 0%,
+				#fafafa 25%,
+				#ffffff 100%
 			);
 			background-image: -o-linear-gradient(
 				center bottom,
-				#eeeeee 0%,
-				#f5f5f5 55%,
-				#fdfdfd 55%,
-				#fafafa 100%
+				#e8e8e8 0%,
+				#fafafa 25%,
+				#ffffff 100%
 			);
-			border          : 1px solid #ccc;
+			border-left     : 1px solid #cccccc;
 			padding         : 3px 5px 3px 5px;
 			
 			/* for CSS3 PIE */
 			-pie-background: linear-gradient(
 				center bottom,
-				#eeeeee 0%,
-				#f5f5f5 55%,
-				#fdfdfd 55%,
-				#fafafa 100%
-			); }
+				#e8e8e8 0%,
+				#fafafa 25%,
+				#ffffff 100%
+			);
 			
-			table.hypergrid > tbody > tr > th > div {
+			-webkit-user-select: none;
+			-khtml-user-select : none;
+			-moz-user-select   : none;
+			user-select        : none; }
+		
+		table.hypergrid > thead > tr > th:first-child {
+			border-left: none; }
+			
+			table.hypergrid > thead > tr > th > div {
 				position : relative;
 				height   : 17px; }
 			
-				table.hypergrid > tbody > tr > th > div > span.hypergrid-sort-triangle {
-					display  : none; }
-			
-				table.hypergrid > tbody > tr > th:hover > div > span.hypergrid-sort-triangle,
-				table.hypergrid > tbody > tr > th > div > span.hypergrid-sort-triangle.hypergrid-active {
-					display    : inline-block;
-					cursor     : pointer;
+				table.hypergrid > thead > tr > th > div > span.hypergrid-sort-triangle {
+					display    : none;
 					position   : absolute;
 					top        : 0;
 					right      : 0;
-					padding    : 2px 0 2px 0;
-					color      : #888;
+					bottom     : 0;
+					padding    : 0;
+					cursor     : pointer;
+					color      : #888888;
 					font-size  : 10px; }
+			
+				table.hypergrid > thead > tr > th:hover > div > span.hypergrid-sort-triangle,
+				table.hypergrid > thead > tr > th > div > span.hypergrid-sort-triangle.hypergrid-active {
+					display    : block; }
 				
-				table.hypergrid > tbody > tr > th > div > span.hypergrid-sort-triangle.hypergrid-active {
+				table.hypergrid > thead > tr > th > div > span.hypergrid-sort-triangle.hypergrid-active {
 					color      : #00407a;
 					text-shadow: 0 0 3px #0084ff; }
 					
-				table.hypergrid > tbody > tr > th > div > span.hypergrid-sort-triangle:hover {
-					color    : #222; }
+				table.hypergrid > thead > tr > th > div > span.hypergrid-sort-triangle:hover {
+					color      : #222222; }
 		
 		table.hypergrid > tbody > tr > td {
-			cursor          : pointer;
-			border-right    : 1px solid #ccc;
-			padding         : 2px 5px 2px 5px; }
+			border-left: 1px solid #cccccc;
+			padding    : 3px 5px 1px 5px; }
 		
-		table.hypergrid > tbody > tr > td > a {
+		table.hypergrid > tbody > tr > td:first-child {
+			border-left: none; }
+		
+		table.hypergrid > tbody > tr > td a {
 			text-decoration: none;
-			color          : #1e7bff;
-			margin-left    : 5px; }
+			color          : #1e7bff; }
 		
-		table.hypergrid > tbody > tr > td > a:hover {
+		table.hypergrid > tbody > tr > td a:hover {
 			text-decoration: underline; }
+	
+	table.hypergrid > .hypergrid-resize-bar {
+		cursor     : col-resize;
+		position   : absolute;
+		top        : 0;
+		bottom     : 0;
+		width      : 5px;
+		margin-left: -5px; }
+	
+	table.hypergrid > .hypergrid-resize-bar:hover,
+	table.hypergrid > .hypergrid-resize-bar-visible {
+		background-color: #cccccc;
+		background-color: rgba(50, 50, 50, 0.1); }
