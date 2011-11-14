@@ -241,15 +241,14 @@ var Hypergrid = Class.create({
 				
 				//adjust size by browser
 				if(Prototype.Browser.WebKit === true){
-					if(col.width && (!col._fixedWidth) && (this.tableWidth != 'auto') && (table.getStyle('table-layout') == 'fixed')){
+					if(col.width && (this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')){
 						//set style to th
 						th.style.width = (
-							col.width + 1 +
+							col.width +
 							parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
-							parseInt(th.getStyle('padding-right').replace('px', ''), 10)
+							parseInt(th.getStyle('padding-right').replace('px', ''), 10) +
+							parseInt(th.getStyle('border-left-width').replace('px', ''), 10)
 						) + 'px';
-							
-						col._fixedWidth = true;
 					}
 				}
 			}.bind(this));//<--#each
@@ -315,8 +314,8 @@ var Hypergrid = Class.create({
 				//adjust size by browser
 				if(Prototype.Browser.WebKit === true){
 					if(
-						row.cell[col.key].width && (!row.cell[col.key]._fixedWidth) &&
-						(this.tableWidth != 'auto') && (table.getStyle('table-layout') == 'fixed')
+						row.cell[col.key].width &&
+						(this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')
 					){
 						td.setStyle({
 							width: (
@@ -326,7 +325,6 @@ var Hypergrid = Class.create({
 								parseInt(td.getStyle('border-left-width').replace('px', ''), 10)
 							) + 'px'
 						});
-						row.cell[col.key]._fixedWidth = true;
 					}//<--if
 				}
 				
@@ -447,6 +445,19 @@ var Hypergrid = Class.create({
 						//remove width style of right column
 						this.colModel[i + 1]._th.style.width = 'auto';
 						delete this.colModel[i + 1].width;
+						
+						//adjust size by browser
+						if(Prototype.Browser.WebKit === true){
+							if((this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')){
+								//set style to th
+								col._th.style.width = (
+									col.width +
+									parseInt(col._th.getStyle('padding-left').replace('px', ''), 10) +
+									parseInt(col._th.getStyle('padding-right').replace('px', ''), 10) +
+									parseInt(col._th.getStyle('border-left-width').replace('px', ''), 10)
+								) + 'px';
+							}
+						}
 						
 						repositionResizeBars();
 						
