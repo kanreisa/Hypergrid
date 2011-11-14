@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.0 for Prototype.js
+ * Hypergrid/1.1 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -39,8 +39,8 @@ var Hypergrid = Class.create({
 				master: document.createElement('input')
 			};
 			this._checkbox.master.setAttribute('type', 'checkbox');
-			this._checkbox.master.style.cursor = 'pointer';
-			this._checkbox.master.style.padding
+			this._checkbox.master.style.cursor  = 'pointer';
+			this._checkbox.master.style.padding = '0';
 			this._checkbox.master.checked = false;
 			
 			//insert checkbox to colModel
@@ -574,12 +574,8 @@ var Hypergrid = Class.create({
 		
 		//run sorter
 		this.rows = this.rows.sort(function(a, b){
-			var result = false;
-			if(a.cell[pKey].innerHTML > b.cell[pKey].innerHTML){
-				result = true;
-			}else{
-				result = false;
-			}
+			var result = (a.cell[pKey].innerHTML > b.cell[pKey].innerHTML);
+			
 			if(pOrder == 'asc'){
 				return result ? 1 : -1;
 			}else{
