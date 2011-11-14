@@ -210,7 +210,7 @@ var Hypergrid = Class.create({
 				if(col.onClick) styles.cursor = 'pointer';
 				styles.textAlign     = col.align  || 'left';
 				styles.verticalAlign = col.valign || 'middle';
-				styles.width         = (col.width + 'px') || 'auto';
+				styles.width         = (col.width) ? (col.width + 'px') : 'auto';
 				styles.minWidth      = this.colMinWidth + 'px';
 				th.setStyle(styles);
 				
@@ -288,7 +288,7 @@ var Hypergrid = Class.create({
 				if(row.cell[col.key].onClick) styles.cursor = 'pointer';
 				styles.textAlign     = row.cell[col.key].align || col.align || 'left';
 				styles.verticalAlign = row.cell[col.key].valign|| col.valign|| 'middle';
-				styles.width         = (row.cell[col.key].width + 'px') || 'auto';
+				styles.width         = (row.cell[col.key].width) ? (row.cell[col.key].width + 'px') : 'auto';
 				td.setStyle(styles);
 				
 				//onClick event
