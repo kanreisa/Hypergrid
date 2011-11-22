@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.1 for Prototype.js
+ * Hypergrid/1.2 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -33,7 +33,7 @@ var Hypergrid = Class.create({
 		this.onSort         = pParam.onSort         || null;
 		
 		//init checkbox
-		if((this.disableCheckbox === false) && this.multiSelect){
+		if((this.disableCheckbox === false) && (this.multiSelect === true) && (this.disableSelect === false)){
 			//create master checkbox
 			this._checkbox = {
 				master: document.createElement('input')
