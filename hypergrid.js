@@ -263,7 +263,9 @@ var Hypergrid = Class.create({
 			
 			//set styles
 			var styles = row.style || {};
-			if((row.onClick) || (row.onDblClick) || (row.onSelect)) styles.cursor = 'pointer';
+			if((row.onClick) || (row.onDblClick) || ((this.disableSelect === false) ? (row.onSelect) : false)){
+				styles.cursor = 'pointer';
+			}
 			r.setStyle(styles);
 			
 			//insert row to tbody
