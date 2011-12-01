@@ -344,7 +344,7 @@ var Hypergrid = Class.create({
 				//selection
 				if(this.disableSelect === false){
 					if(this.multiSelect === true){
-						if(r.hasClassName('selected')){
+						if(r.hasClassName('selected') === true){
 							this.selector('unselect', r, function(){
 								if(row.onUnSelect) row.onUnSelect(r, pEvent);//call user function
 							});
@@ -355,13 +355,13 @@ var Hypergrid = Class.create({
 						}
 					}else{
 						//if selected this row, just unselect only.
-						var clear = false;
-						if(r.hasClassName('selected')) clear = true;
+						var clearOnly = false;
+						if(r.hasClassName('selected') === true) clearOnly = true;
 						
 						//unselect all rows
 						this.selector('unselectAll');
 						
-						if(clear === false){
+						if(clearOnly === false){
 							this.selector('select', r, function(){
 								if(row.onSelect) row.onSelect(r, pEvent);//call user function
 							});
