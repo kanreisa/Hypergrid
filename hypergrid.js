@@ -97,6 +97,7 @@ var Hypergrid = Class.create({
 				};
 			}.bind(this));
 		}
+		return this;
 	}//<--initialize()
 	,
 	/**
@@ -208,10 +209,11 @@ var Hypergrid = Class.create({
 							if((this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')){
 								//set style to th
 								th.style.width = (
-									col.width +
+									width +
 									parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
 									parseInt(th.getStyle('padding-right').replace('px', ''), 10) +
-									parseInt(th.getStyle('border-right-width').replace('px', ''), 10)
+									parseInt(th.getStyle('border-right-width').replace('px', ''), 10) +
+									parseInt(th.getStyle('border-left-width').replace('px', ''), 10)
 								) + 'px';
 							} else {
 								th.style.width = width + 'px';
@@ -432,83 +434,76 @@ var Hypergrid = Class.create({
 				if((i + 1) === this.colModel.length){
 					throw $break;
 				}
-				
 				//resize bar
 				var rbar = col._rbar = document.createElement('div');
 				rbar.setAttribute('class', 'hypergrid-resize-bar');
 				rbar.style.left = (col._th.positionedOffset().left + col._th.getWidth()) + 'px';
-				
+			
 				//insert bar to table
 				table.appendChild(rbar);
-				
-				//observe mousedown event
-				rbar.observe('mousedown', function(e){
-					var positionedX = e.clientX;//save cursor position
-					var beforePos   = parseInt(rbar.getStyle('left').replace('px', ''), 10); 
-					
+			
+				var positionedX, beforePos; //closures
+				var that = this;
+				var getRbarPositionAndDisplay = function(e){
+					positionedX = e.clientX;//save cursor position
+					beforePos = parseInt(rbar.getStyle('left').replace('px', ''), 10);
 					rbar.addClassName('hypergrid-resize-bar-visible');
-					
-					//mousemove event
-					var onMove = function(e){
-						var transfers = e.clientX - positionedX;//calc
-						rbar.style.left = (transfers + parseInt(rbar.getStyle('left').replace('px', ''), 10)) + 'px';
-						
-						positionedX = e.clientX;//save cursor position
-						
-						//stop default event
-						e.stop();
-						return false;
-					};//<--onMove()
-					
-					//mouseup event
-					var onUp = function(e){
-						var j;
-						rbar.removeClassName('hypergrid-resize-bar-visible');
-						
-						var resize = parseInt(rbar.getStyle('left').replace('px', ''), 10) - beforePos;
-						
-						var currentColWidth = [];
-						for (j = i; j < this.colModel.length; j++) {
-							currentColWidth[j] = this.colModel[j].getWidth();
-						}
-						
-						resize = Math.max(resize, (this.colModel[i].minWidth ? this.colModel[i].minWidth : this.colMinWidth ) - currentColWidth[i]);
-						
-						// resize right colmun
-						var rest = -resize%(this.colModel.length - i - 1);
-						var delta = (-resize-rest)/(this.colModel.length - i - 1);
-						var fixedWidth;
-						for (j = this.colModel.length -1; j > i + 1; j--) {
-							fixedWidth = Math.max(this.colModel[j].minWidth ? this.colModel[j].minWidth : this.colMinWidth, delta + currentColWidth[j]);
-							this.colModel[j].setWidth(fixedWidth);
-							rest += delta - (fixedWidth - currentColWidth[j]);
-						}
-						
-						fixedWidth = Math.max(this.colModel[j].minWidth ? this.colModel[j].minWidth : this.colMinWidth, delta + rest + currentColWidth[j]);						
-						this.colModel[j].setWidth(fixedWidth);
-						rest = delta + rest - (fixedWidth - currentColWidth[j]);
-
-						col.setWidth(resize + rest + currentColWidth[i]);
-						repositionResizeBars();
-						
-						//stop observing events
-						$(document.body).stopObserving('mousemove', onMove);
-						$(document.body).stopObserving('mouseup', onUp);
-						
-						//stop default event
-						e.stop();
-						return false;
-					}.bind(this);//<--onUp()
-					
-					//observe events
-					$(document.body).observe('mousemove', onMove);
+				
+					// observe dragging
+					$(document.body).observe('mousemove', moveRbarWithCursor);
 					$(document.body).observe('mouseup', onUp);
-					
 					//stop default event
 					e.stop();
 					return false;
-				}.bind(this));//<--#observe
-			}.bind(this));//<--#each
+				};
+			
+				var moveRbarWithCursor = function(e){
+					var transfers = e.clientX - positionedX;//calc
+					rbar.style.left = (transfers + parseInt(rbar.getStyle('left').replace('px', ''), 10)) + 'px';
+						
+					positionedX = e.clientX;//save cursor position
+					//stop default event
+					e.stop();
+					return false;
+				};
+			
+				var onUp = function(e){
+					var colModel = that.colModel; // this makes referencing faster
+					Event.stopObserving(document.body, 'mousemove', moveRbarWithCursor);
+					Event.stopObserving(document.body, 'mouseup', onUp);
+				
+					rbar.removeClassName('hypergrid-resize-bar-visible');
+					var currentColWidth = [];
+					for (var j = i; j < colModel.length; j++) {
+						currentColWidth[j] = colModel[j].getWidth();
+					}
+					
+					var resize = parseInt(rbar.getStyle('left').replace('px', ''), 10) - beforePos;
+					resize = Math.max(resize, (colModel[i].minWidth ? colModel[i].minWidth : that.colMinWidth ) - currentColWidth[i]);
+					// resize right colmun
+					var rest = -resize%(colModel.length - i - 1);
+					var delta = (-resize-rest)/(colModel.length - i - 1);
+					var fixedWidth;
+					for (var j = colModel.length -1; j > i + 1; j--) {
+						fixedWidth = Math.max(colModel[j].minWidth ? colModel[j].minWidth : that.colMinWidth, delta + currentColWidth[j]);
+						colModel[j].setWidth(fixedWidth);
+						rest += delta - (fixedWidth - currentColWidth[j]);
+					}
+						
+					fixedWidth = Math.max(colModel[j].minWidth ? colModel[j].minWidth : that.colMinWidth, delta + rest + currentColWidth[j]);						
+					that.colModel[j].setWidth(fixedWidth);
+					rest = delta + rest - (fixedWidth - currentColWidth[j]);
+					col.setWidth(resize + rest + currentColWidth[i]);
+					
+					repositionResizeBars();
+				
+					// stop default event
+					e.stop();
+					return false;
+				};
+				//observe mousedown event
+				rbar.observe('mousedown', getRbarPositionAndDisplay);
+			}.bind(this));
 			
 			Event.observe(window, 'resize', function(){
 				setTimeout(repositionResizeBars, 500);
@@ -519,6 +514,7 @@ var Hypergrid = Class.create({
 		if(this.onRendered !== null){
 			this.onRendered();
 		}
+		return this;
 	}//<--render()
 	,
 	/**
