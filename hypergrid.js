@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.0 for Prototype.js
+ * Hypergrid/1.2 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -33,14 +33,14 @@ var Hypergrid = Class.create({
 		this.onSort         = pParam.onSort         || null;
 		
 		//init checkbox
-		if((this.disableCheckbox === false) && this.multiSelect){
+		if((this.disableCheckbox === false) && (this.multiSelect === true) && (this.disableSelect === false)){
 			//create master checkbox
 			this._checkbox = {
 				master: document.createElement('input')
 			};
 			this._checkbox.master.setAttribute('type', 'checkbox');
-			this._checkbox.master.style.cursor = 'pointer';
-			this._checkbox.master.style.padding
+			this._checkbox.master.style.cursor  = 'pointer';
+			this._checkbox.master.style.padding = '0';
 			this._checkbox.master.checked = false;
 			
 			//insert checkbox to colModel
@@ -97,6 +97,7 @@ var Hypergrid = Class.create({
 				};
 			}.bind(this));
 		}
+		return this;
 	}//<--initialize()
 	,
 	/**
@@ -202,6 +203,50 @@ var Hypergrid = Class.create({
 				//create th element
 				var th = col._th = document.createElement('th');
 				
+				if(Prototype.Browser.WebKit === true){
+					col.setWidth = function (width) {
+						if(width) {
+							if((this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')){
+								//set style to th
+								th.style.width = (
+									width +
+									parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
+									parseInt(th.getStyle('padding-right').replace('px', ''), 10) +
+									parseInt(th.getStyle('border-right-width').replace('px', ''), 10) +
+									parseInt(th.getStyle('border-left-width').replace('px', ''), 10)
+								) + 'px';
+							} else {
+								th.style.width = width + 'px';
+							}
+							col.width = width;
+						} else {
+							th.style.width = 'auto';
+							delete col.width;
+						}
+					};
+					col.getWidth = function () {
+						return th.getWidth();
+					};
+				} else {
+					col.setWidth = function (width) {
+						if (width) {
+							col.width = width;
+							th.style.width = col.width + 'px';
+						} else {
+							th.style.width = 'auto';
+							delete col.width;
+						}
+					};			
+				}
+				
+				col.getWidth = function () {
+					return th.getWidth() -
+					parseInt(th.getStyle('padding-left').replace('px', ''), 10) -
+					parseInt(th.getStyle('padding-right').replace('px', ''), 10) -
+					parseInt(th.getStyle('border-right-width').replace('px', ''), 10) -
+					parseInt(th.getStyle('border-left-width').replace('px', ''), 10);
+				};
+				
 				//set title attr
 				if(col.title) th.setAttribute('title', col.title);
 				
@@ -210,7 +255,6 @@ var Hypergrid = Class.create({
 				if(col.onClick) styles.cursor = 'pointer';
 				styles.textAlign     = col.align  || 'left';
 				styles.verticalAlign = col.valign || 'middle';
-				styles.width         = (col.width + 'px') || 'auto';
 				styles.minWidth      = this.colMinWidth + 'px';
 				th.setStyle(styles);
 				
@@ -239,19 +283,7 @@ var Hypergrid = Class.create({
 				//insert th to tr
 				r.appendChild(th);
 				
-				//adjust size by browser
-				if(Prototype.Browser.WebKit === true){
-					if(col.width && (!col._fixedWidth) && (this.tableWidth != 'auto') && (table.getStyle('table-layout') == 'fixed')){
-						//set style to th
-						th.style.width = (
-							col.width + 1 +
-							parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
-							parseInt(th.getStyle('padding-right').replace('px', ''), 10)
-						) + 'px';
-							
-						col._fixedWidth = true;
-					}
-				}
+				col.setWidth(col.width);
 			}.bind(this));//<--#each
 		}//<--if
 		
@@ -264,7 +296,9 @@ var Hypergrid = Class.create({
 			
 			//set styles
 			var styles = row.style || {};
-			if((row.onClick) || (row.onDblClick) || (row.onSelect)) styles.cursor = 'pointer';
+			if((row.onClick) || (row.onDblClick) || ((this.disableSelect === false) ? (row.onSelect) : false)){
+				styles.cursor = 'pointer';
+			}
 			r.setStyle(styles);
 			
 			//insert row to tbody
@@ -288,7 +322,7 @@ var Hypergrid = Class.create({
 				if(row.cell[col.key].onClick) styles.cursor = 'pointer';
 				styles.textAlign     = row.cell[col.key].align || col.align || 'left';
 				styles.verticalAlign = row.cell[col.key].valign|| col.valign|| 'middle';
-				styles.width         = (row.cell[col.key].width + 'px') || 'auto';
+				styles.width         = (row.cell[col.key].width) ? (row.cell[col.key].width + 'px') : 'auto';
 				td.setStyle(styles);
 				
 				//onClick event
@@ -315,8 +349,8 @@ var Hypergrid = Class.create({
 				//adjust size by browser
 				if(Prototype.Browser.WebKit === true){
 					if(
-						row.cell[col.key].width && (!row.cell[col.key]._fixedWidth) &&
-						(this.tableWidth != 'auto') && (table.getStyle('table-layout') == 'fixed')
+						row.cell[col.key].width &&
+						(this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')
 					){
 						td.setStyle({
 							width: (
@@ -326,7 +360,6 @@ var Hypergrid = Class.create({
 								parseInt(td.getStyle('border-left-width').replace('px', ''), 10)
 							) + 'px'
 						});
-						row.cell[col.key]._fixedWidth = true;
 					}//<--if
 				}
 				
@@ -344,7 +377,7 @@ var Hypergrid = Class.create({
 				//selection
 				if(this.disableSelect === false){
 					if(this.multiSelect === true){
-						if(r.hasClassName('selected')){
+						if(r.hasClassName('selected') === true){
 							this.selector('unselect', r, function(){
 								if(row.onUnSelect) row.onUnSelect(r, pEvent);//call user function
 							});
@@ -355,13 +388,13 @@ var Hypergrid = Class.create({
 						}
 					}else{
 						//if selected this row, just unselect only.
-						var clear = false;
-						if(r.hasClassName('selected')) clear = true;
+						var clearOnly = false;
+						if(r.hasClassName('selected') === true) clearOnly = true;
 						
 						//unselect all rows
 						this.selector('unselectAll');
 						
-						if(clear === false){
+						if(clearOnly === false){
 							this.selector('select', r, function(){
 								if(row.onSelect) row.onSelect(r, pEvent);//call user function
 							});
@@ -401,73 +434,76 @@ var Hypergrid = Class.create({
 				if((i + 1) === this.colModel.length){
 					throw $break;
 				}
-				
 				//resize bar
 				var rbar = col._rbar = document.createElement('div');
 				rbar.setAttribute('class', 'hypergrid-resize-bar');
 				rbar.style.left = (col._th.positionedOffset().left + col._th.getWidth()) + 'px';
-				
+			
 				//insert bar to table
 				table.appendChild(rbar);
-				
-				//observe mousedown event
-				rbar.observe('mousedown', function(e){
-					var positionedX = e.clientX;//save cursor position
-					var beforePos   = parseInt(rbar.getStyle('left').replace('px', ''), 10); 
-					
+			
+				var positionedX, beforePos; //closures
+				var that = this;
+				var getRbarPositionAndDisplay = function(e){
+					positionedX = e.clientX;//save cursor position
+					beforePos = parseInt(rbar.getStyle('left').replace('px', ''), 10);
 					rbar.addClassName('hypergrid-resize-bar-visible');
-					
-					//mousemove event
-					var onMove = function(e){
-						var transfers = e.clientX - positionedX;//calc
-						rbar.style.left = (transfers + parseInt(rbar.getStyle('left').replace('px', ''), 10)) + 'px';
-						
-						positionedX = e.clientX;//save cursor position
-						
-						//stop default event
-						e.stop();
-						return false;
-					};//<--onMove()
-					
-					//mouseup event
-					var onUp = function(e){
-						rbar.removeClassName('hypergrid-resize-bar-visible');
-						
-						var resize = parseInt(rbar.getStyle('left').replace('px', ''), 10) - beforePos;
-						
-						col.width = (
-							resize + col._th.getWidth() -
-							parseInt(col._th.getStyle('padding-left').replace('px', ''), 10) -
-							parseInt(col._th.getStyle('padding-right').replace('px', ''), 10) -
-							((i === 0) ? 0 : 1)
-						);
-						
-						col._th.style.width = col.width + 'px';
-						
-						//remove width style of right column
-						this.colModel[i + 1]._th.style.width = 'auto';
-						delete this.colModel[i + 1].width;
-						
-						repositionResizeBars();
-						
-						//stop observing events
-						$(document.body).stopObserving('mousemove', onMove);
-						$(document.body).stopObserving('mouseup', onUp);
-						
-						//stop default event
-						e.stop();
-						return false;
-					}.bind(this);//<--onUp()
-					
-					//observe events
-					$(document.body).observe('mousemove', onMove);
+				
+					// observe dragging
+					$(document.body).observe('mousemove', moveRbarWithCursor);
 					$(document.body).observe('mouseup', onUp);
-					
 					//stop default event
 					e.stop();
 					return false;
-				}.bind(this));//<--#observe
-			}.bind(this));//<--#each
+				};
+			
+				var moveRbarWithCursor = function(e){
+					var transfers = e.clientX - positionedX;//calc
+					rbar.style.left = (transfers + parseInt(rbar.getStyle('left').replace('px', ''), 10)) + 'px';
+						
+					positionedX = e.clientX;//save cursor position
+					//stop default event
+					e.stop();
+					return false;
+				};
+			
+				var onUp = function(e){
+					var colModel = that.colModel; // this makes referencing faster
+					Event.stopObserving(document.body, 'mousemove', moveRbarWithCursor);
+					Event.stopObserving(document.body, 'mouseup', onUp);
+				
+					rbar.removeClassName('hypergrid-resize-bar-visible');
+					var currentColWidth = [];
+					for (var j = i; j < colModel.length; j++) {
+						currentColWidth[j] = colModel[j].getWidth();
+					}
+					
+					var resize = parseInt(rbar.getStyle('left').replace('px', ''), 10) - beforePos;
+					resize = Math.max(resize, (colModel[i].minWidth ? colModel[i].minWidth : that.colMinWidth ) - currentColWidth[i]);
+					// resize right colmun
+					var rest = -resize%(colModel.length - i - 1);
+					var delta = (-resize-rest)/(colModel.length - i - 1);
+					var fixedWidth;
+					for (var j = colModel.length -1; j > i + 1; j--) {
+						fixedWidth = Math.max(colModel[j].minWidth ? colModel[j].minWidth : that.colMinWidth, delta + currentColWidth[j]);
+						colModel[j].setWidth(fixedWidth);
+						rest += delta - (fixedWidth - currentColWidth[j]);
+					}
+						
+					fixedWidth = Math.max(colModel[j].minWidth ? colModel[j].minWidth : that.colMinWidth, delta + rest + currentColWidth[j]);						
+					that.colModel[j].setWidth(fixedWidth);
+					rest = delta + rest - (fixedWidth - currentColWidth[j]);
+					col.setWidth(resize + rest + currentColWidth[i]);
+					
+					repositionResizeBars();
+				
+					// stop default event
+					e.stop();
+					return false;
+				};
+				//observe mousedown event
+				rbar.observe('mousedown', getRbarPositionAndDisplay);
+			}.bind(this));
 			
 			Event.observe(window, 'resize', function(){
 				setTimeout(repositionResizeBars, 500);
@@ -478,6 +514,7 @@ var Hypergrid = Class.create({
 		if(this.onRendered !== null){
 			this.onRendered();
 		}
+		return this;
 	}//<--render()
 	,
 	/**
@@ -574,12 +611,8 @@ var Hypergrid = Class.create({
 		
 		//run sorter
 		this.rows = this.rows.sort(function(a, b){
-			var result = false;
-			if(a.cell[pKey].innerHTML > b.cell[pKey].innerHTML){
-				result = true;
-			}else{
-				result = false;
-			}
+			var result = (a.cell[pKey].innerHTML > b.cell[pKey].innerHTML);
+			
 			if(pOrder == 'asc'){
 				return result ? 1 : -1;
 			}else{
