@@ -71,6 +71,11 @@ table.hypergrid {
 			table.hypergrid > tbody > tr > td > div > input {
 				vertical-align: middle; }
 			
+			table.hypergrid > thead > tr > th > div > input[type="checkbox"],
+			table.hypergrid > tbody > tr > td > div > input[type="checkbox"] {
+				cursor : pointer;
+				padding: 0px; }
+			
 		table.hypergrid > thead > tr > th {
 			background-color: #fefefe;
 			background-image: -webkit-gradient(
