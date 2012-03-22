@@ -18,7 +18,8 @@ div.hypergrid-container, table.hypergrid {
 	font-weight: normal;
 	font-style : normal;
 	font-size  : 100%;
-	font-family: inherit; }
+	font-family: inherit;
+	line-height: 18px; }
 
 div.hypergrid-container {
 	overflow: auto; }
