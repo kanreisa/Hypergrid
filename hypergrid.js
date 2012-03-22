@@ -586,13 +586,19 @@ var Hypergrid = Class.create({
 	// selector
 	//
 	selector: function _selector(action, targetElement, callback) {
+		var isDrawCheckbox = (
+			(this.disableCheckbox === false) &&
+			(this.disableSelect === false) &&
+			(this.multiSelect === true)
+		);
+		
 		// select row
 		if (action === 'select') {
 			// add 'selected' className
 			targetElement.addClassName('selected');
 			
 			// checkbox
-			if (this.disableCheckbox === false) {
+			if (isDrawCheckbox) {
 				// check
 				targetElement.childElements()[0].childElements()[0].childElements()[0].checked = true;
 				this._checkbox.master.checked = true;
@@ -605,7 +611,7 @@ var Hypergrid = Class.create({
 			targetElement.removeClassName('selected');
 			
 			// checkbox
-			if (this.disableCheckbox === false) {
+			if (isDrawCheckbox) {
 				// uncheck
 				targetElement.childElements()[0].childElements()[0].childElements()[0].checked = false;
 				
@@ -635,7 +641,7 @@ var Hypergrid = Class.create({
 				row._tr.addClassName('selected');
 				
 				// checkbox
-				if (this.disableCheckbox === false) {
+				if (isDrawCheckbox) {
 					row._tr.childElements()[0].childElements()[0].childElements()[0].checked = true;
 					this._checkbox.master.checked = true;
 				}
@@ -659,7 +665,7 @@ var Hypergrid = Class.create({
 				row._tr.removeClassName('selected');
 				
 				// checkbox
-				if (this.disableCheckbox === false) {
+				if (isDrawCheckbox) {
 					row._tr.childElements()[0].childElements()[0].childElements()[0].checked = false;
 					this._checkbox.master.checked = false;
 				}
