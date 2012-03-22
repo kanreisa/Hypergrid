@@ -9,7 +9,7 @@
  * http://akkar.in/projects/hypergrid/
 **/
 div.hypergrid-container, table.hypergrid {
-	background : #ffffff;
+	background : transparent;
 	color      : #2b2b2b;
 	position   : relative;
 	margin     : 0;
@@ -30,39 +30,38 @@ table.hypergrid div {
 
 table.hypergrid {
 	position        : relative;
-	background      : #ffffff;
+	background      : transparent;
 	border          : none;
 	border-collapse : collapse;
 	table-layout    : fixed; }
 	
 	table.hypergrid > thead > tr {
-		border-bottom: 1px solid #cccccc; }
+		border-bottom: 1px solid #bcbcbc; }
 	
 	table.hypergrid > tbody > tr {
 		background-color: #fefefe; }
 	
-	table.hypergrid > tbody > tr.hypergrid-odd,
-	table.hypergrid > tbody > tr:nth-child(odd) {
+	table.hypergrid > tbody > tr.hypergrid-odd/*,
+	table.hypergrid > tbody > tr:nth-child(odd)*/ {
 		background-color: #f5f5f5; }
 	
 	table.hypergrid > tbody > tr:hover {
 		background-color: #e5e5e5; }
 	
-	table.hypergrid > tbody > tr:active {
-		background-color: #d5d5d5; }
-	
 	table.hypergrid > tbody > tr.selected {
-		background-color: #d6e7ff; }
+		background-color: #d6e7ff;
+		
+		-webkit-transition: background-color 0.1s ease;
+		-moz-transition: background-color 0.1s ease;
+		-o-transition: background-color 0.1s ease;
+		transition: background-color 0.1s ease; }
 	
-	table.hypergrid > tbody > tr.selected.hypergrid-odd,
-	table.hypergrid > tbody > tr.selected:nth-child(odd) {
+	table.hypergrid > tbody > tr.selected.hypergrid-odd/*,
+	table.hypergrid > tbody > tr.selected:nth-child(odd)*/ {
 		background-color: #cce1ff; }
 	
 	table.hypergrid > tbody > tr.selected:hover {
 		background-color: #b7d5ff; }
-	
-	table.hypergrid > tbody > tr.selected:active {
-		background-color: #a3c9ff; }
 	
 		table.hypergrid > thead > tr > th,
 		table.hypergrid > tbody > tr > td {
@@ -86,42 +85,70 @@ table.hypergrid {
 				padding: 0px; }
 			
 		table.hypergrid > thead > tr > th {
-			background-color: #fefefe;
-			background-image: -webkit-gradient(
-				linear,
-				left bottom,
-				left top,
-				color-stop(0,   #e8e8e8),
-				color-stop(0.25,#fafafa),
-				color-stop(1,   #ffffff)
+			cursor: default;
+			color : #444444;
+			text-shadow: 0 1px 0 #fff;
+			
+			background-color: transparent;
+			background-image: -webkit-linear-gradient(
+				bottom,
+				rgba(0,0,0,0.13) 0%,
+				rgba(0,0,0,0.06) 15%,
+				rgba(0,0,0,0)    100%
 			);
 			background-image: -moz-linear-gradient(
-				center bottom,
-				#e8e8e8 0%,
-				#fafafa 25%,
-				#ffffff 100%
+				bottom,
+				rgba(0,0,0,0.13) 0%,
+				rgba(0,0,0,0.06) 15%,
+				rgba(0,0,0,0)    100%
 			);
 			background-image: -o-linear-gradient(
-				center bottom,
-				#e8e8e8 0%,
-				#fafafa 25%,
-				#ffffff 100%
+				bottom,
+				rgba(0,0,0,0.13) 0%,
+				rgba(0,0,0,0.06) 15%,
+				rgba(0,0,0,0)    100%
 			);
-			border-left     : 1px solid #cccccc;
+			background-image: linear-gradient(
+				bottom,
+				rgba(0,0,0,0.13) 0%,
+				rgba(0,0,0,0.06) 15%,
+				rgba(0,0,0,0)    100%
+			);
+			border-left     : 1px dotted #cccccc;
 			padding         : 3px 5px 3px 5px;
-			
-			/* for CSS3 PIE */
-			-pie-background: linear-gradient(
-				center bottom,
-				#e8e8e8 0%,
-				#fafafa 25%,
-				#ffffff 100%
-			);
 			
 			-webkit-user-select: none;
 			-khtml-user-select : none;
 			-moz-user-select   : none;
 			user-select        : none; }
+			
+		table.hypergrid > thead > tr > th:hover {
+			color : #000000;
+			
+			background-image: -webkit-linear-gradient(
+				bottom,
+				rgba(0,105,255,0.23) 0%,
+				rgba(0,105,255,0.10) 15%,
+				rgba(0,105,255,0)    100%
+			);
+			background-image: -moz-linear-gradient(
+				bottom,
+				rgba(0,105,255,0.23) 0%,
+				rgba(0,105,255,0.10) 15%,
+				rgba(0,105,255,0)    100%
+			);
+			background-image: -o-linear-gradient(
+				bottom,
+				rgba(0,105,255,0.23) 0%,
+				rgba(0,105,255,0.10) 15%,
+				rgba(0,105,255,0)    100%
+			);
+			background-image: linear-gradient(
+				bottom,
+				rgba(0,105,255,0.23) 0%,
+				rgba(0,105,255,0.10) 15%,
+				rgba(0,105,255,0)    100%
+			); }
 		
 		table.hypergrid > thead > tr > th:first-child {
 			border-left: none; }
