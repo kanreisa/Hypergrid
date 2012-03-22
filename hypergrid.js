@@ -317,6 +317,9 @@ var Hypergrid = Class.create({
 			if (row.title) {
 				r.title = row.title;
 			}
+			if (i % 2 === 0) {
+				r.className = 'hypergrid-odd';
+			}
 			
 			// set styles
 			var styles = row.style || {};

@@ -41,20 +41,28 @@ table.hypergrid {
 	table.hypergrid > tbody > tr {
 		background-color: #fefefe; }
 	
+	table.hypergrid > tbody > tr.hypergrid-odd,
 	table.hypergrid > tbody > tr:nth-child(odd) {
 		background-color: #f5f5f5; }
 	
 	table.hypergrid > tbody > tr:hover {
 		background-color: #e5e5e5; }
 	
+	table.hypergrid > tbody > tr:active {
+		background-color: #d5d5d5; }
+	
 	table.hypergrid > tbody > tr.selected {
 		background-color: #d6e7ff; }
 	
+	table.hypergrid > tbody > tr.selected.hypergrid-odd,
 	table.hypergrid > tbody > tr.selected:nth-child(odd) {
 		background-color: #cce1ff; }
 	
 	table.hypergrid > tbody > tr.selected:hover {
 		background-color: #b7d5ff; }
+	
+	table.hypergrid > tbody > tr.selected:active {
+		background-color: #a3c9ff; }
 	
 		table.hypergrid > thead > tr > th,
 		table.hypergrid > tbody > tr > td {
@@ -132,7 +140,7 @@ table.hypergrid {
 					cursor     : pointer;
 					color      : #888888;
 					font-size  : 10px; }
-			
+					
 				table.hypergrid > thead > tr > th:hover > div > span.hypergrid-sort-triangle,
 				table.hypergrid > thead > tr > th > div > span.hypergrid-sort-triangle.hypergrid-active {
 					display    : block; }
