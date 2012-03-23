@@ -120,7 +120,7 @@ var Hypergrid = Class.create({
 	// render
 	//
 	render: function _render(targetElement) {
-		//create container
+		// create container
 		var target = document.createElement('div');
 		target.className = 'hypergrid-container';
 		
@@ -134,7 +134,7 @@ var Hypergrid = Class.create({
 		}
 		$(targetElement).appendChild(target);
 		
-		//create table element
+		// create table element
 		var table = this._table = document.createElement('table');
 		table.id        = this.tableID;
 		table.className = this.tableClass;
@@ -144,34 +144,34 @@ var Hypergrid = Class.create({
 		styles.height = Object.isNumber(this.tableHeight) ? this.tableHeight + 'px' : this.tableHeight;
 		table.setStyle(styles);
 		
-		//insert table to target
+		// insert table to target
 		target.appendChild(table);
 		
-		//create thead element
+		// create thead element
 		var thead = document.createElement('thead');
 		
-		//insert thead to table
+		// insert thead to table
 		table.appendChild(thead);
 		
-		//create tbody element
+		// create tbody element
 		var tbody = document.createElement('tbody');
 		
-		//insert tbody to table
+		// insert tbody to table
 		table.appendChild(tbody);
 		
-		//column model
+		// column model
 		if(typeof this.colModel[0].key != 'undefined'){
 			var r = document.createElement('tr');//insert row
 			thead.appendChild(r);
 			
 			//
-			//render column header
+			// render column header
 			//
 			this.colModel.each(function(col, i){
-				//fix innerHTML
+				// fix innerHTML
 				var innerHTML = col.innerHTML || '';
 				if(col._statusSort && ((typeof col.width == 'undefined') || (col.width > 20))){
-					//fix triangle
+					// fix triangle
 					if(col._statusSort.isOrderAsc){
 						var triangle = this._sortTriangle.originAsc.cloneNode(true);
 					}else{
@@ -181,7 +181,7 @@ var Hypergrid = Class.create({
 						triangle.addClassName('hypergrid-active');
 					}
 					
-					//add event listener
+					// add event listener
 					triangle.observe('click', function(e){
 						//unselect all
 						this.selector('unselectAll');
@@ -198,11 +198,11 @@ var Hypergrid = Class.create({
 						});
 						col._statusSort.isActive = true;
 						
-						//redraw
+						// redraw
 						this.render(targetElement);
 					}.bind(this));
 					
-					//insert triangle
+					// insert triangle
 					innerHTML = new Element('div').insert(
 						new Element('span').insert(
 							col.innerHTML || ''
@@ -216,14 +216,14 @@ var Hypergrid = Class.create({
 					);
 				}//<--if
 				
-				//create th element
+				// create th element
 				var th = col._th = document.createElement('th');
 				
 				if (Prototype.Browser.WebKit === true) {
 					col.setWidth = function (width) {
 						if (width) {
 							if ((this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')) {
-								//set style to th
+								// set style to th
 								th.style.width = (
 									width +
 									parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
@@ -263,12 +263,12 @@ var Hypergrid = Class.create({
 					parseInt(th.getStyle('border-left-width').replace('px', ''), 10);
 				};
 				
-				//set title attr
+				// set title attr
 				if (col.title) {
 					th.title = col.title;
 				}
 				
-				//set styles
+				// set styles
 				var styles = col.style || {};
 				if (col.onClick) {
 					styles.cursor = 'pointer';
@@ -278,14 +278,14 @@ var Hypergrid = Class.create({
 				styles.minWidth      = this.colMinWidth + 'px';
 				th.setStyle(styles);
 				
-				//onClick event
+				// onClick event
 				if (col.onClick) {
 					th.observe('click', function(e) {
 						col.onClick(e);
 					});
 				}
 				
-				//innerHTML
+				// innerHTML
 				if (Object.isElement(innerHTML) === true) {
 					if (innerHTML.type == 'checkbox') {
 						var contentContainer = document.createElement('div');
@@ -300,7 +300,7 @@ var Hypergrid = Class.create({
 					th.appendChild(contentContainer);
 				}
 				
-				//insert th to tr
+				// insert th to tr
 				r.appendChild(th);
 				
 				col.setWidth(col.width);
