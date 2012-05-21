@@ -124,15 +124,22 @@ var Hypergrid = Class.create({
 		var target = document.createElement('div');
 		target.className = 'hypergrid-container';
 		
-		//insert container to render element
-		if($(targetElement).innerHTML.empty() === false){
-			try{
+		// restoration
+		if (!targetElement && this._lastTargetElement) {
+			var targetElement = this._lastTargetElement;
+		}
+		
+		// insert container to render element
+		if ($(targetElement).innerHTML.empty() === false) {
+			try {
 				$(targetElement).innerHTML = '';
-			}catch(e){
+			} catch(e) {
 				$(targetElement).update();
 			}
 		}
 		$(targetElement).appendChild(target);
+		
+		this._lastTargetElement = targetElement;
 		
 		// create table element
 		var table = this._table = document.createElement('table');
