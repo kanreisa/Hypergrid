@@ -9,9 +9,12 @@
  * http://akkar.in/projects/hypergrid/
 **/
 var Hypergrid = Class.create({
-	//
-	// Constructor
-	//
+	/**
+	 *  new Hypergrid(option) -> Hypergrid
+	 *  - option (Object) - options
+	 *
+	 *  create a Hypergrid instance.
+	**/
 	initialize: function _init(opt) {
 		this.colModel       = opt.colModel       || [];
 		this.rows           = opt.rows           || [];
@@ -59,11 +62,13 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--initialize()
+	}//<--#initialize()
 	,
-	//
-	// initCheckbox
-	//
+	/**
+	 *  Hypergrid#initCheckbox() -> Hypergrid
+	 *
+	 *  initiate a checkbox.
+	**/
 	initCheckbox: function _initCheckbox() {
 		// init checkbox
 		var isDrawCheckbox = (
@@ -114,11 +119,14 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--initCheckbox()
+	}//<--#initCheckbox()
 	,
-	//
-	// render
-	//
+	/**
+	 *  Hypergrid#render(target) -> Hypergrid
+	 *  - target (Element)
+	 *
+	 *  Render the grid.
+	**/
 	render: function _render(targetElement) {
 		// create container
 		var target = document.createElement('div');
@@ -589,11 +597,13 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--render()
+	}//<--#render()
 	,
-	//
-	// selector
-	//
+	/**
+	 *  Hypergrid#selector(action, targetRow, callback) -> Hypergrid
+	 *
+	 *  row selector.
+	**/
 	selector: function _selector(action, targetElement, callback) {
 		var isDrawCheckbox = (
 			(this.disableCheckbox === false) &&
@@ -692,11 +702,15 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--selector()
+	}//<--#selector()
 	,
-	//
-	// sorter
-	//
+	/**
+	 *  Hypergrid#sorter(key, order) -> Hypergrid
+	 *  - key (String)
+	 *  - order (String) - "asc" or "desc"
+	 *
+	 *  row sorter.
+	**/
 	sorter: function _sorter(key, order) {
 		// onBeforeSort event
 		if (this.onBeforeSort !== null) this.onBeforeSort(key, order);
@@ -718,5 +732,33 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--sorter()
+	}//<--#sorter()
+	,
+	/**
+	 *  Hypergrid#push(row) -> Hypergrid
+	 *  - row (Object)
+	**/
+	push: function _push(row) {
+		// checkbox
+		var isDrawCheckbox = (
+			(this.disableCheckbox === false) &&
+			(this.disableSelect === false) &&
+			(this.multiSelect === true)
+		);
+		if (isDrawCheckbox) {
+			var key = 'row-' + this.rows.length.toString(10);
+			this._checkbox[key] = document.createElement('input');
+			this._checkbox[key].type    = 'checkbox';
+			this._checkbox[key].checked = false;
+			
+			row.cell._hypergridCheckbox = {
+				style    : { padding: 0 },
+				innerHTML: this._checkbox[key]
+			};
+		}
+		
+		this.rows.push(row);
+		
+		return this;
+	}
 });
