@@ -18,7 +18,7 @@
 		Event.observe(window, 'load', exampleBasic);
 		
 		function exampleBasic() {
-			var grid = new Hypergrid({
+			window.grid = new Hypergrid({
 				// basic options
 				tableWidth : '100%',
 				multiSelect: true,
@@ -51,42 +51,49 @@
 				rows: (function _createRows() {
 					var rows = [];
 					
-					for (var i = 0; i < 200; i++) {
-						var colorCode = '#' + Math.floor(Math.random() * 1000000000).toString(16).substr(0, 6);
-						
-						rows.push({
-							cell: {
-								id: {
-									innerHTML: i.toString(10)
-								},
-								preview: {
-									style: {
-										boxShadow: 'inset 0 0 20px #fff',
-										background: colorCode
-									}
-								},
-								code: {
-									innerHTML: colorCode,
-									style: {
-										color: colorCode
-									}
-								},
-								time: {
-									innerHTML: new Date().getTime().toString(10)
-								}
-							}
-						});
+					for (var i = 0; i < 10; i++) {
+						rows.push(exampleCreateRow(i));
 					}
 					
 					return rows;
 				})()
 			});
 			
-			grid.render('example-basic-container');
+			window.grid.render('example-basic-container');
+		}
+		
+		function exampleCreateRow(id) {
+			var colorCode = '#' + Math.floor(Math.random() * 1000000000).toString(16).substr(0, 6);
+			
+			return {
+				cell: {
+					id: {
+						innerHTML: id.toString(10)
+					},
+					preview: {
+						style: {
+							boxShadow: 'inset 0 0 20px #fff',
+							background: colorCode
+						}
+					},
+					code: {
+						innerHTML: colorCode,
+						style: {
+							color: colorCode
+						}
+					},
+					time: {
+						innerHTML: new Date().getTime().toString(10)
+					}
+				}
+			};
 		}
 	</script>
 </head>
 <body>
+	<div id="example-basic-control" style="margin-bottom: 5px;">
+		test of new method: <a href="javascript:grid.push(exampleCreateRow(grid.rows.length)).render();">#push().render()</a>
+	</div>
 	<div id="example-basic-container"></div>
 </body>
 </html>

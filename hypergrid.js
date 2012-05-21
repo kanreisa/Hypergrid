@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.3 for Prototype.js
+ * Hypergrid/1.4 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -9,9 +9,12 @@
  * http://akkar.in/projects/hypergrid/
 **/
 var Hypergrid = Class.create({
-	//
-	// Constructor
-	//
+	/**
+	 *  new Hypergrid(option) -> Hypergrid
+	 *  - option (Object) - options
+	 *
+	 *  create a Hypergrid instance.
+	**/
 	initialize: function _init(opt) {
 		this.colModel       = opt.colModel       || [];
 		this.rows           = opt.rows           || [];
@@ -59,11 +62,13 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--initialize()
+	}//<--#initialize()
 	,
-	//
-	// initCheckbox
-	//
+	/**
+	 *  Hypergrid#initCheckbox() -> Hypergrid
+	 *
+	 *  initiate a checkbox.
+	**/
 	initCheckbox: function _initCheckbox() {
 		// init checkbox
 		var isDrawCheckbox = (
@@ -114,27 +119,37 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--initCheckbox()
+	}//<--#initCheckbox()
 	,
-	//
-	// render
-	//
+	/**
+	 *  Hypergrid#render(target) -> Hypergrid
+	 *  - target (Element)
+	 *
+	 *  Render the grid.
+	**/
 	render: function _render(targetElement) {
-		//create container
+		// create container
 		var target = document.createElement('div');
 		target.className = 'hypergrid-container';
 		
-		//insert container to render element
-		if($(targetElement).innerHTML.empty() === false){
-			try{
+		// restoration
+		if (!targetElement && this._lastTargetElement) {
+			var targetElement = this._lastTargetElement;
+		}
+		
+		// insert container to render element
+		if ($(targetElement).innerHTML.empty() === false) {
+			try {
 				$(targetElement).innerHTML = '';
-			}catch(e){
+			} catch(e) {
 				$(targetElement).update();
 			}
 		}
 		$(targetElement).appendChild(target);
 		
-		//create table element
+		this._lastTargetElement = targetElement;
+		
+		// create table element
 		var table = this._table = document.createElement('table');
 		table.id        = this.tableID;
 		table.className = this.tableClass;
@@ -144,45 +159,45 @@ var Hypergrid = Class.create({
 		styles.height = Object.isNumber(this.tableHeight) ? this.tableHeight + 'px' : this.tableHeight;
 		table.setStyle(styles);
 		
-		//insert table to target
+		// insert table to target
 		target.appendChild(table);
 		
-		//create thead element
+		// create thead element
 		var thead = document.createElement('thead');
 		
-		//insert thead to table
+		// insert thead to table
 		table.appendChild(thead);
 		
-		//create tbody element
+		// create tbody element
 		var tbody = document.createElement('tbody');
 		
-		//insert tbody to table
+		// insert tbody to table
 		table.appendChild(tbody);
 		
-		//column model
-		if(typeof this.colModel[0].key != 'undefined'){
+		// column model
+		if (typeof this.colModel[0].key !== 'undefined') {
 			var r = document.createElement('tr');//insert row
 			thead.appendChild(r);
 			
 			//
-			//render column header
+			// render column header
 			//
-			this.colModel.each(function(col, i){
-				//fix innerHTML
+			this.colModel.each(function(col, i) {
+				// fix innerHTML
 				var innerHTML = col.innerHTML || '';
-				if(col._statusSort && ((typeof col.width == 'undefined') || (col.width > 20))){
-					//fix triangle
-					if(col._statusSort.isOrderAsc){
+				if (col._statusSort && ((typeof col.width === 'undefined') || (col.width > 20))) {
+					// fix triangle
+					if (col._statusSort.isOrderAsc) {
 						var triangle = this._sortTriangle.originAsc.cloneNode(true);
-					}else{
+					} else {
 						var triangle = this._sortTriangle.originDesc.cloneNode(true);
 					}
-					if(col._statusSort.isActive){
+					if (col._statusSort.isActive) {
 						triangle.addClassName('hypergrid-active');
 					}
 					
-					//add event listener
-					triangle.observe('click', function(e){
+					// add event listener
+					triangle.observe('click', function(e) {
 						//unselect all
 						this.selector('unselectAll');
 						
@@ -191,18 +206,18 @@ var Hypergrid = Class.create({
 						
 						//update status
 						col._statusSort.isOrderAsc = (col._statusSort.isOrderAsc) ? false : true;
-						this.colModel.each(function(col, i){
-							if(col._statusSort){
+						this.colModel.each(function(col, i) {
+							if (col._statusSort) {
 								col._statusSort.isActive = false;
 							}
 						});
 						col._statusSort.isActive = true;
 						
-						//redraw
+						// redraw
 						this.render(targetElement);
 					}.bind(this));
 					
-					//insert triangle
+					// insert triangle
 					innerHTML = new Element('div').insert(
 						new Element('span').insert(
 							col.innerHTML || ''
@@ -216,14 +231,14 @@ var Hypergrid = Class.create({
 					);
 				}//<--if
 				
-				//create th element
+				// create th element
 				var th = col._th = document.createElement('th');
 				
 				if (Prototype.Browser.WebKit === true) {
 					col.setWidth = function (width) {
 						if (width) {
 							if ((this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')) {
-								//set style to th
+								// set style to th
 								th.style.width = (
 									width +
 									parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
@@ -256,19 +271,21 @@ var Hypergrid = Class.create({
 				}
 				
 				col.getWidth = function () {
-					return th.getWidth() -
-					parseInt(th.getStyle('padding-left').replace('px', ''), 10) -
-					parseInt(th.getStyle('padding-right').replace('px', ''), 10) -
-					parseInt(th.getStyle('border-right-width').replace('px', ''), 10) -
-					parseInt(th.getStyle('border-left-width').replace('px', ''), 10);
+					return (
+						th.getWidth() -
+						parseInt(th.getStyle('padding-left').replace('px', ''), 10) -
+						parseInt(th.getStyle('padding-right').replace('px', ''), 10) -
+						parseInt(th.getStyle('border-right-width').replace('px', ''), 10) -
+						parseInt(th.getStyle('border-left-width').replace('px', ''), 10)
+					);
 				};
 				
-				//set title attr
+				// set title attr
 				if (col.title) {
 					th.title = col.title;
 				}
 				
-				//set styles
+				// set styles
 				var styles = col.style || {};
 				if (col.onClick) {
 					styles.cursor = 'pointer';
@@ -278,14 +295,14 @@ var Hypergrid = Class.create({
 				styles.minWidth      = this.colMinWidth + 'px';
 				th.setStyle(styles);
 				
-				//onClick event
+				// onClick event
 				if (col.onClick) {
 					th.observe('click', function(e) {
 						col.onClick(e);
 					});
 				}
 				
-				//innerHTML
+				// innerHTML
 				if (Object.isElement(innerHTML) === true) {
 					if (innerHTML.type == 'checkbox') {
 						var contentContainer = document.createElement('div');
@@ -300,7 +317,7 @@ var Hypergrid = Class.create({
 					th.appendChild(contentContainer);
 				}
 				
-				//insert th to tr
+				// insert th to tr
 				r.appendChild(th);
 				
 				col.setWidth(col.width);
@@ -580,11 +597,13 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--render()
+	}//<--#render()
 	,
-	//
-	// selector
-	//
+	/**
+	 *  Hypergrid#selector(action, targetRow, callback) -> Hypergrid
+	 *
+	 *  row selector.
+	**/
 	selector: function _selector(action, targetElement, callback) {
 		var isDrawCheckbox = (
 			(this.disableCheckbox === false) &&
@@ -683,11 +702,15 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--selector()
+	}//<--#selector()
 	,
-	//
-	// sorter
-	//
+	/**
+	 *  Hypergrid#sorter(key, order) -> Hypergrid
+	 *  - key (String)
+	 *  - order (String) - "asc" or "desc"
+	 *
+	 *  row sorter.
+	**/
 	sorter: function _sorter(key, order) {
 		// onBeforeSort event
 		if (this.onBeforeSort !== null) this.onBeforeSort(key, order);
@@ -709,5 +732,33 @@ var Hypergrid = Class.create({
 		}
 		
 		return this;
-	}//<--sorter()
+	}//<--#sorter()
+	,
+	/**
+	 *  Hypergrid#push(row) -> Hypergrid
+	 *  - row (Object)
+	**/
+	push: function _push(row) {
+		// checkbox
+		var isDrawCheckbox = (
+			(this.disableCheckbox === false) &&
+			(this.disableSelect === false) &&
+			(this.multiSelect === true)
+		);
+		if (isDrawCheckbox) {
+			var key = 'row-' + this.rows.length.toString(10);
+			this._checkbox[key] = document.createElement('input');
+			this._checkbox[key].type    = 'checkbox';
+			this._checkbox[key].checked = false;
+			
+			row.cell._hypergridCheckbox = {
+				style    : { padding: 0 },
+				innerHTML: this._checkbox[key]
+			};
+		}
+		
+		this.rows.push(row);
+		
+		return this;
+	}
 });
