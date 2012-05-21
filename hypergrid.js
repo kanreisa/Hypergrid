@@ -167,29 +167,29 @@ var Hypergrid = Class.create({
 		table.appendChild(tbody);
 		
 		// column model
-		if(typeof this.colModel[0].key != 'undefined'){
+		if (typeof this.colModel[0].key !== 'undefined') {
 			var r = document.createElement('tr');//insert row
 			thead.appendChild(r);
 			
 			//
 			// render column header
 			//
-			this.colModel.each(function(col, i){
+			this.colModel.each(function(col, i) {
 				// fix innerHTML
 				var innerHTML = col.innerHTML || '';
-				if(col._statusSort && ((typeof col.width == 'undefined') || (col.width > 20))){
+				if (col._statusSort && ((typeof col.width === 'undefined') || (col.width > 20))) {
 					// fix triangle
-					if(col._statusSort.isOrderAsc){
+					if (col._statusSort.isOrderAsc) {
 						var triangle = this._sortTriangle.originAsc.cloneNode(true);
-					}else{
+					} else {
 						var triangle = this._sortTriangle.originDesc.cloneNode(true);
 					}
-					if(col._statusSort.isActive){
+					if (col._statusSort.isActive) {
 						triangle.addClassName('hypergrid-active');
 					}
 					
 					// add event listener
-					triangle.observe('click', function(e){
+					triangle.observe('click', function(e) {
 						//unselect all
 						this.selector('unselectAll');
 						
@@ -198,8 +198,8 @@ var Hypergrid = Class.create({
 						
 						//update status
 						col._statusSort.isOrderAsc = (col._statusSort.isOrderAsc) ? false : true;
-						this.colModel.each(function(col, i){
-							if(col._statusSort){
+						this.colModel.each(function(col, i) {
+							if (col._statusSort) {
 								col._statusSort.isActive = false;
 							}
 						});
@@ -263,11 +263,13 @@ var Hypergrid = Class.create({
 				}
 				
 				col.getWidth = function () {
-					return th.getWidth() -
-					parseInt(th.getStyle('padding-left').replace('px', ''), 10) -
-					parseInt(th.getStyle('padding-right').replace('px', ''), 10) -
-					parseInt(th.getStyle('border-right-width').replace('px', ''), 10) -
-					parseInt(th.getStyle('border-left-width').replace('px', ''), 10);
+					return (
+						th.getWidth() -
+						parseInt(th.getStyle('padding-left').replace('px', ''), 10) -
+						parseInt(th.getStyle('padding-right').replace('px', ''), 10) -
+						parseInt(th.getStyle('border-right-width').replace('px', ''), 10) -
+						parseInt(th.getStyle('border-left-width').replace('px', ''), 10)
+					);
 				};
 				
 				// set title attr
