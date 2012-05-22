@@ -675,6 +675,11 @@ var Hypergrid = Class.create({
 		// unselect all rows
 		if (action === 'unselectAll') {
 			this.rows.each(function(row) {
+				// continue if not exist element
+				if (typeof row._tr === 'undefined') {
+					return;
+				}
+				
 				// continue if already unselected
 				if (row._tr.hasClassName('selected') === false) {
 					return;
@@ -736,9 +741,21 @@ var Hypergrid = Class.create({
 	,
 	/**
 	 *  Hypergrid#push(row) -> Hypergrid
-	 *  - row (Object)
+	 *  - row (Object, Array)
 	**/
-	push: function _push(row) {
+	push: function _push(r) {
+		if (Object.isArray(r) === true) {
+			if (r.length > 0) {
+				var row = r.shift();
+			} else {
+				this.selector('unselectAll');
+				
+				return this;
+			}
+		} else {
+			var row = r;
+		}
+		
 		// checkbox
 		var isDrawCheckbox = (
 			(this.disableCheckbox === false) &&
@@ -759,6 +776,13 @@ var Hypergrid = Class.create({
 		
 		this.rows.push(row);
 		
-		return this;
+		// if Array, then recursion
+		if (Object.isArray(r) === true) {
+			return this.push(r);
+		} else {
+			this.selector('unselectAll');
+			
+			return this;
+		}
 	}
 });

@@ -88,11 +88,29 @@
 				}
 			};
 		}
+		
+		function exampleCreateRows(id, count, r) {
+			var rows = r || [];
+			
+			rows.push(exampleCreateRow(id));
+			
+			++id;
+			--count;
+			
+			if (count === 0) {
+				return rows;
+			} else {
+				return exampleCreateRows(id, count, rows);
+			}
+		}
 	</script>
 </head>
 <body>
 	<div id="example-basic-control" style="margin-bottom: 5px;">
-		test of new method: <a href="javascript:void(0);" onclick="grid.push(exampleCreateRow(grid.rows.length)).render();">#push().render()</a>
+		test:
+		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRow(grid.rows.length)).render();">#push(row).render()</a>
+		,
+		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRows(grid.rows.length, 5)).render();">#push([5 rows]).render()</a>
 	</div>
 	<div id="example-basic-container"></div>
 </body>
