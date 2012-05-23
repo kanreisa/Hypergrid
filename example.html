@@ -108,25 +108,44 @@
 			}
 		}
 	</script>
+	<style type="text/css">
+		div#example-basic-control {
+			font-size  : 12px; }
+			
+			div#example-basic-control > a {
+				display         : inline-block;
+				text-decoration : none;
+				color           : #333;
+				background-color: #eee;
+				padding         : 3px;
+				margin-bottom   : 2px; }
+			
+			div#example-basic-control > a:hover {
+				color           : #000;
+				background-color: #ccc; }
+			
+			div#example-basic-control > a:active {
+				color           : #fff;
+				background-color: #777; }
+	</style>
 </head>
 <body>
 	<div id="example-basic-control" style="margin-bottom: 5px;">
-		test:
+		push/unshift:
 		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRow()).render();">#push(row).render()</a>
-		,
-		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRows(3)).render();">#push([3]).render()</a>
-		,
-		<a href="javascript:void(0);" onclick="grid.unshift(exampleCreateRow()).render();">#unshift().render()</a>
-		,
-		<a href="javascript:void(0);" onclick="grid.unshift(exampleCreateRows(3)).render();">#unshift([3]).render()</a>
-		,
+		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRows(3)).render();">#push([3 rows]).render()</a>
+		<a href="javascript:void(0);" onclick="grid.unshift(exampleCreateRow()).render();">#unshift(row).render()</a>
+		<a href="javascript:void(0);" onclick="grid.unshift(exampleCreateRows(3)).render();">#unshift([3 rows]).render()</a><br>
+		shift/pop:
 		<a href="javascript:void(0);" onclick="grid.shift().render();">#shift().render()</a>
-		,
 		<a href="javascript:void(0);" onclick="grid.shift(3).render();">#shift(3).render()</a>
-		,
 		<a href="javascript:void(0);" onclick="grid.pop().render();">#pop().render()</a>
-		,
-		<a href="javascript:void(0);" onclick="grid.pop(3).render();">#pop(3).render()</a>
+		<a href="javascript:void(0);" onclick="grid.pop(3).render();">#pop(3).render()</a><br>
+		insert/update:
+		<a href="javascript:void(0);" onclick="grid.insert(3, exampleCreateRow()).render();">#insert(3, row).render()</a>
+		<a href="javascript:void(0);" onclick="grid.insert(3, exampleCreateRows(3)).render();">#insert(3, [3 rows]).render()</a>
+		<a href="javascript:void(0);" onclick="grid.update(3, exampleCreateRow()).render();">#update(3, row).render()</a>
+		<a href="javascript:void(0);" onclick="grid.update(3, exampleCreateRows(3)).render();">#update(3, [3 rows]).render()</a>
 	</div>
 	<div id="example-basic-container"></div>
 </body>
