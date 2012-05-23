@@ -740,6 +740,53 @@ var Hypergrid = Class.create({
 	}//<--#sorter()
 	,
 	/**
+	 *  Hypergrid#unshift(row) -> Hypergrid
+	 *  - row (Object, Array)
+	**/
+	unshift: function _unshift(r) {
+		if (Object.isArray(r) === true) {
+			if (r.length > 0) {
+				var row = r.shift();
+			} else {
+				this.selector('unselectAll');
+				
+				return this;
+			}
+		} else {
+			var row = r;
+		}
+		
+		// checkbox
+		var isDrawCheckbox = (
+			(this.disableCheckbox === false) &&
+			(this.disableSelect === false) &&
+			(this.multiSelect === true)
+		);
+		if (isDrawCheckbox) {
+			var key = 'row-' + this.rows.length.toString(10);
+			this._checkbox[key] = document.createElement('input');
+			this._checkbox[key].type    = 'checkbox';
+			this._checkbox[key].checked = false;
+			
+			row.cell._hypergridCheckbox = {
+				style    : { padding: 0 },
+				innerHTML: this._checkbox[key]
+			};
+		}
+		
+		this.rows.unshift(row);
+		
+		// if Array, then recursion
+		if (Object.isArray(r) === true) {
+			return this.unshift(r);
+		} else {
+			this.selector('unselectAll');
+			
+			return this;
+		}
+	}
+	,
+	/**
 	 *  Hypergrid#push(row) -> Hypergrid
 	 *  - row (Object, Array)
 	**/
