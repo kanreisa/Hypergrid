@@ -114,11 +114,19 @@
 		test:
 		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRow()).render();">#push(row).render()</a>
 		,
-		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRows(3)).render();">#push([3 rows]).render()</a>
+		<a href="javascript:void(0);" onclick="grid.push(exampleCreateRows(3)).render();">#push([3]).render()</a>
 		,
 		<a href="javascript:void(0);" onclick="grid.unshift(exampleCreateRow()).render();">#unshift().render()</a>
 		,
-		<a href="javascript:void(0);" onclick="grid.unshift(exampleCreateRows(3)).render();">#unshift([3 rows]).render()</a>
+		<a href="javascript:void(0);" onclick="grid.unshift(exampleCreateRows(3)).render();">#unshift([3]).render()</a>
+		,
+		<a href="javascript:void(0);" onclick="grid.shift().render();">#shift().render()</a>
+		,
+		<a href="javascript:void(0);" onclick="grid.shift(3).render();">#shift(3).render()</a>
+		,
+		<a href="javascript:void(0);" onclick="grid.pop().render();">#pop().render()</a>
+		,
+		<a href="javascript:void(0);" onclick="grid.pop(3).render();">#pop(3).render()</a>
 	</div>
 	<div id="example-basic-container"></div>
 </body>

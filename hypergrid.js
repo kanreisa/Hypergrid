@@ -832,4 +832,58 @@ var Hypergrid = Class.create({
 			return this;
 		}
 	}
+	,
+	/**
+	 *  Hypergrid#shift(count, callback) -> Hypergrid
+	 *  - count (Number) - default is 1
+	 *  - callback (Function) - sync callback removed row(s)
+	**/
+	shift: function _shift(count, callback) {
+		this.selector('unselectAll');
+		
+		count = count || 1;
+		
+		var removed = [];
+		
+		(count).times(function() {
+			removed.push(this.rows.shift());
+		}.bind(this));
+		
+		if (callback) {
+			if (removed.length === 1) {
+				callback(removed[0]);
+			} else {
+				callback(removed);
+			}
+		}
+		
+		return this;
+	}
+	,
+	/**
+	 *  Hypergrid#pop(count, callback) -> Hypergrid
+	 *  - count (Number) - default is 1
+	 *  - callback (Function) - sync callback removed row(s)
+	**/
+	pop: function _pop(count, callback) {
+		this.selector('unselectAll');
+		
+		count = count || 1;
+		
+		var removed = [];
+		
+		(count).times(function() {
+			removed.push(this.rows.pop());
+		}.bind(this));
+		
+		if (callback) {
+			if (removed.length === 1) {
+				callback(removed[0]);
+			} else {
+				callback(removed);
+			}
+		}
+		
+		return this;
+	}
 });
