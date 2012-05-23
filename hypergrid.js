@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.4 for Prototype.js
+ * Hypergrid/1.5 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -69,14 +69,15 @@ var Hypergrid = Class.create({
 	 *
 	 *  initiate a checkbox.
 	**/
-	initCheckbox: function _initCheckbox() {
+	initCheckbox: function _initCheckbox(row) {
 		// init checkbox
 		var isDrawCheckbox = (
 			(this.disableCheckbox === false) &&
 			(this.disableSelect === false) &&
 			(this.multiSelect === true)
 		);
-		if (isDrawCheckbox) {
+		
+		if (isDrawCheckbox && !row) {
 			// create source
 			var checkboxSource = document.createElement('input');
 			checkboxSource.type    = 'checkbox';
@@ -116,6 +117,18 @@ var Hypergrid = Class.create({
 					innerHTML: this._checkbox[key]
 				};
 			}.bind(this));
+		}
+		
+		if (isDrawCheckbox && row) {
+			var key = 'row-' + this.rows.length.toString(10);
+			this._checkbox[key] = document.createElement('input');
+			this._checkbox[key].type    = 'checkbox';
+			this._checkbox[key].checked = false;
+			
+			row.cell._hypergridCheckbox = {
+				style    : { padding: 0 },
+				innerHTML: this._checkbox[key]
+			};
 		}
 		
 		return this;
@@ -675,6 +688,11 @@ var Hypergrid = Class.create({
 		// unselect all rows
 		if (action === 'unselectAll') {
 			this.rows.each(function(row) {
+				// continue if not exist element
+				if (typeof row._tr === 'undefined') {
+					return;
+				}
+				
 				// continue if already unselected
 				if (row._tr.hasClassName('selected') === false) {
 					return;
@@ -735,29 +753,185 @@ var Hypergrid = Class.create({
 	}//<--#sorter()
 	,
 	/**
-	 *  Hypergrid#push(row) -> Hypergrid
-	 *  - row (Object)
+	 *  Hypergrid#unshift(row) -> Hypergrid
+	 *  - row (Object, Array)
 	**/
-	push: function _push(row) {
-		// checkbox
-		var isDrawCheckbox = (
-			(this.disableCheckbox === false) &&
-			(this.disableSelect === false) &&
-			(this.multiSelect === true)
-		);
-		if (isDrawCheckbox) {
-			var key = 'row-' + this.rows.length.toString(10);
-			this._checkbox[key] = document.createElement('input');
-			this._checkbox[key].type    = 'checkbox';
-			this._checkbox[key].checked = false;
-			
-			row.cell._hypergridCheckbox = {
-				style    : { padding: 0 },
-				innerHTML: this._checkbox[key]
-			};
+	unshift: function _unshift(r) {
+		if (Object.isArray(r) === true) {
+			if (r.length > 0) {
+				var row = r.shift();
+			} else {
+				this.selector('unselectAll');
+				
+				return this;
+			}
+		} else {
+			var row = r;
 		}
 		
+		this.initCheckbox(row);// checkbox
+		
+		this.rows.unshift(row);
+		
+		// if Array, then recursion
+		if (Object.isArray(r) === true) {
+			return this.unshift(r);
+		} else {
+			this.selector('unselectAll');
+			
+			return this;
+		}
+	}
+	,
+	/**
+	 *  Hypergrid#push(row) -> Hypergrid
+	 *  - row (Object, Array)
+	**/
+	push: function _push(r) {
+		if (Object.isArray(r) === true) {
+			if (r.length > 0) {
+				var row = r.shift();
+			} else {
+				this.selector('unselectAll');
+				
+				return this;
+			}
+		} else {
+			var row = r;
+		}
+		
+		this.initCheckbox(row);// checkbox
+		
 		this.rows.push(row);
+		
+		// if Array, then recursion
+		if (Object.isArray(r) === true) {
+			return this.push(r);
+		} else {
+			this.selector('unselectAll');
+			
+			return this;
+		}
+	}
+	,
+	/**
+	 *  Hypergrid#shift(count, callback) -> Hypergrid
+	 *  - count (Number) - default is 1
+	 *  - callback (Function) - sync callback removed row(s)
+	**/
+	shift: function _shift(count, callback) {
+		this.selector('unselectAll');
+		
+		count = count || 1;
+		
+		var removed = [];
+		
+		(count).times(function() {
+			removed.push(this.rows.shift());
+		}.bind(this));
+		
+		if (callback) {
+			if (removed.length === 1) {
+				callback(removed[0]);
+			} else {
+				callback(removed);
+			}
+		}
+		
+		return this;
+	}
+	,
+	/**
+	 *  Hypergrid#pop(count, callback) -> Hypergrid
+	 *  - count (Number) - default is 1
+	 *  - callback (Function) - sync callback removed row(s)
+	**/
+	pop: function _pop(count, callback) {
+		this.selector('unselectAll');
+		
+		count = count || 1;
+		
+		var removed = [];
+		
+		(count).times(function() {
+			removed.push(this.rows.pop());
+		}.bind(this));
+		
+		if (callback) {
+			if (removed.length === 1) {
+				callback(removed[0]);
+			} else {
+				callback(removed);
+			}
+		}
+		
+		return this;
+	}
+	,
+	/**
+	 *  Hypergrid#insert(position, row) -> Hypergrid
+	 *  - position (Number, Object) - insert position
+	 *  - row (Object, Array) - row object or row objects array
+	 *
+	 *  this method is experiment.
+	**/
+	insert: function _insert(pos, r) {
+		this.selector('unselectAll');
+		
+		if (Object.isArray(r) === false) {
+			r = [r];
+		}
+		
+		var changed = [];
+		
+		this.rows.each(function(row, i) {
+			changed.push(row);
+			
+			if ((typeof pos === 'number') && ((pos - 1) !== i)) {
+				return;// continue
+			} else if ((typeof pos === 'object') && (row !== pos)) {
+				return;// continue
+			}
+			
+			// insert row(s)
+			r.each(function(row) {
+				this.initCheckbox(row);
+				changed.push(row);
+			}.bind(this));
+		}.bind(this));
+		
+		this.rows = changed;
+		
+		return this;
+	}
+	,
+	/**
+	 *  Hypergrid#update(position, row) -> Hypergrid
+	 *  - position (Number, Object) - update position
+	 *  - row (Object, Array) - row object or row objects array
+	 *
+	 *  this method is experiment.
+	**/
+	update: function _update(pos, r) {
+		this.selector('unselectAll');
+		
+		if (Object.isArray(r) === false) {
+			r = [r];
+		}
+		
+		this.rows.each(function(row, i) {
+			if ((typeof pos === 'number') && ((pos - 1) !== i)) {
+				return;// continue
+			} else if ((typeof pos === 'object') && (row !== pos)) {
+				return;// continue
+			}
+			
+			// insert row(s)
+			r.each(function(nRow, j) {
+				this.initCheckbox(nRow);
+				this.rows[i + j] = nRow;
+			}.bind(this));
+		}.bind(this));
 		
 		return this;
 	}
