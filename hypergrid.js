@@ -409,13 +409,19 @@ var Hypergrid = Class.create({
 					});
 				}
 				
-				//innerHTML
+				// innerHTML
 				if (row.cell[col.key].innerHTML) {
-					//create container
+					// create container
 					var contentContainer = document.createElement('div');
 					td.appendChild(contentContainer);
 					
-					//insertion
+					// set icon
+					if (row.cell[col.key].icon) {
+						contentContainer.setStyle({ backgroundImage: 'url(' + row.cell[col.key].icon + ')' });
+						contentContainer.addClassName('hypergrid-icon');
+					}
+					
+					// insertion
 					if (Object.isElement(row.cell[col.key].innerHTML) === true) {
 						contentContainer.appendChild(row.cell[col.key].innerHTML);
 					} else {
