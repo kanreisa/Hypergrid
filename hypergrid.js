@@ -351,6 +351,11 @@ var Hypergrid = Class.create({
 				r.className = 'hypergrid-odd';
 			}
 			
+			// set className attr
+			if (row.className) {
+				r.className = (r.className || '') + ' ' + row.className;
+			}
+			
 			// set styles
 			var styles = row.style || {};
 			var isEnableEvent = (
@@ -380,6 +385,11 @@ var Hypergrid = Class.create({
 				// set title attr
 				if (row.cell[col.key].title) {
 					td.title = row.cell[col.key].title;
+				}
+				
+				// set className attr
+				if (row.cell[col.key].className) {
+					td.className = row.cell[col.key].className;
 				}
 				
 				// set styles
