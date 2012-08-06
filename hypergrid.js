@@ -951,4 +951,28 @@ var Hypergrid = Class.create({
 		
 		return this;
 	}
+	,
+	/**
+	 *  Hypergrid#delete(position) -> Hypergrid
+	 *  - position (Number, Object) - delete position
+	 *
+	 *  this method is experiment.
+	**/
+	'delete': function _delete(pos) {
+		this.selector('unselectAll');
+		
+		this.rows.each(function(row, i) {
+			if ((typeof pos === 'number') && ((pos - 1) !== i)) {
+				return;// continue
+			} else if ((typeof pos === 'object') && (row !== pos)) {
+				return;// continue
+			}
+			
+			delete this.rows[i];
+		}.bind(this));
+		
+		this.rows = this.rows.compact();
+		
+		return this;
+	}
 });
