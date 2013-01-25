@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.7 for Prototype.js
+ * Hypergrid/1.8 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -247,41 +247,15 @@ var Hypergrid = Class.create({
 				// create th element
 				var th = col._th = document.createElement('th');
 				
-				if (Prototype.Browser.WebKit === true) {
-					col.setWidth = function (width) {
-						if (width) {
-							if ((this.tableWidth !== 'auto') && (table.getStyle('table-layout') === 'fixed')) {
-								// set style to th
-								th.style.width = (
-									width +
-									parseInt(th.getStyle('padding-left').replace('px', ''), 10) +
-									parseInt(th.getStyle('padding-right').replace('px', ''), 10) +
-									parseInt(th.getStyle('border-right-width').replace('px', ''), 10) +
-									parseInt(th.getStyle('border-left-width').replace('px', ''), 10)
-								) + 'px';
-							} else {
-								th.style.width = width + 'px';
-							}
-							col.width = width;
-						} else {
-							th.style.width = 'auto';
-							delete col.width;
-						}
-					};
-					col.getWidth = function () {
-						return th.getWidth();
-					};
-				} else {
-					col.setWidth = function (width) {
-						if (width) {
-							col.width = width;
-							th.style.width = col.width + 'px';
-						} else {
-							th.style.width = 'auto';
-							delete col.width;
-						}
-					};			
-				}
+				col.setWidth = function (width) {
+					if (width) {
+						col.width = width;
+						th.style.width = col.width + 'px';
+					} else {
+						th.style.width = 'auto';
+						delete col.width;
+					}
+				};
 				
 				col.getWidth = function () {
 					return (
@@ -428,26 +402,6 @@ var Hypergrid = Class.create({
 						contentContainer.innerHTML = row.cell[col.key].innerHTML;
 					}
 				}
-				
-				// adjust size (webkit)
-				if (Prototype.Browser.WebKit === true) {
-					var isAdjustRequired = (
-						(row.cell[col.key].width) &&
-						(this.tableWidth !== 'auto') &&
-						(table.getStyle('table-layout') === 'fixed')
-					);
-					if (isAdjustRequired) {
-						td.setStyle({
-							width: (
-								row.cell[col.key].width +
-								parseInt(td.getStyle('padding-left').replace('px', ''), 10) +
-								parseInt(td.getStyle('padding-right').replace('px', ''), 10) +
-								parseInt(td.getStyle('border-left-width').replace('px', ''), 10) +
-								parseInt(td.getStyle('border-right-width').replace('px', ''), 10)
-							) + 'px'
-						});
-					}//<--if
-				}//<--if
 				
 				// insert td to tr
 				r.appendChild(td);
