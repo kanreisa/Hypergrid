@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.6 for Prototype.js
+ * Hypergrid/[:version] for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -33,7 +33,8 @@ table.hypergrid {
 	background      : transparent;
 	border          : none;
 	border-collapse : collapse;
-	table-layout    : fixed; }
+	table-layout    : fixed;
+	overflow        : hidden; }
 	
 	table.hypergrid > thead > tr {
 		border-bottom: 1px solid #bcbcbc; }
