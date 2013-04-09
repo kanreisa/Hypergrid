@@ -462,6 +462,13 @@ var Hypergrid = Class.create({
 					row.onDblClick(r, e);
 				});
 			}
+			
+			//
+			// onCreate Event
+			//
+			if (row.onCreate) {
+				row.onCreate(r);
+			}
 		}.bind(this));//<--#each
 		
 		// resizing
