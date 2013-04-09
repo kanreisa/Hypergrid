@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.8 for Prototype.js
+ * Hypergrid/1.9 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -461,6 +461,13 @@ var Hypergrid = Class.create({
 				r.observe('dblclick', function(e) {
 					row.onDblClick(r, e);
 				});
+			}
+			
+			//
+			// onCreate Event
+			//
+			if (row.onCreate) {
+				row.onCreate(r);
 			}
 		}.bind(this));//<--#each
 		
