@@ -1,3 +1,10 @@
+#### DEPRECATED: THIS PROJECT IS NO LONGER UNDER ACTIVE DEVELOPMENT
+##### please use the [Flagrate](https://github.com/webnium/flagrate) Grid. It's a hyper than Hypergrid.
+#### このプロジェクトの開発は停止しました
+##### [Flagrate](https://github.com/webnium/flagrate) Grid をお勧めします。Hypergridのコードを参考に再実装されており、Hypergridよりもハイパーです。[パフォーマンスの向上](http://jsperf.com/flagrate-grid-performance/3)や[ページネーション](https://flagrate.org/api/flagrate.createGrid.html)が実現しています。ある程度の互換性があります。
+
+----
+
 Hypergrid
 =========
 
